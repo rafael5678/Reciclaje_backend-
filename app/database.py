@@ -106,8 +106,12 @@ def get_conn() -> Database:
     return Database(raw, postgres=False)
 
 
-def init_db() -> None:
-    conn = get_conn()
+def init_db() -> bool:
+    try:
+        conn = get_conn()
+    except Exception as exc:
+        print(f"Base de datos no disponible: {exc}")
+        return False
     try:
         if conn.postgres:
             for statement in POSTGRES_STATEMENTS:
@@ -120,6 +124,7 @@ def init_db() -> None:
     from app.seed import seed_if_empty
 
     seed_if_empty()
+    return True
 
 
 def with_ssl(url: str) -> str:

@@ -13,9 +13,13 @@ from app.views import auth_view, impact_view, material_view, scan_view
 load_env()
 
 
+database_ready = False
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    init_db()
+    global database_ready
+    database_ready = init_db()
     try:
         photo_service.warmup()
     except Exception:
@@ -41,4 +45,4 @@ app.include_router(impact_view.router, prefix="/api")
 
 @app.get("/api/health")
 def health() -> dict:
-    return {"status": "ok", "service": "ecoscan", "gemini": has_gemini()}
+    return {"status": "ok", "service": "ecoscan", "gemini": has_gemini(), "database": database_ready}
