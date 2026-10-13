@@ -1,5 +1,11 @@
 from app.database import get_conn
 
+SCAN_COLUMNS = """
+    id, user_id, material_code, object_name, confidence,
+    separated_well, points, weight_kg, co2_kg, created_at,
+    (photo IS NOT NULL) AS has_photo
+"""
+
 
 class ScanRepository:
     def count_for(self, user_id: int) -> int:
@@ -17,8 +23,8 @@ class ScanRepository:
         conn = get_conn()
         try:
             rows = conn.execute(
-                """
-                SELECT * FROM scans
+                f"""
+                SELECT {SCAN_COLUMNS} FROM scans
                 WHERE user_id = ?
                 ORDER BY created_at DESC, id DESC
                 """,
@@ -39,16 +45,17 @@ class ScanRepository:
         weight_kg: float,
         co2_kg: float,
         created_at: str,
+        photo: bytes | None = None,
     ) -> dict:
         conn = get_conn()
         try:
             row = conn.execute(
-                """
+                f"""
                 INSERT INTO scans (
                     user_id, material_code, object_name, confidence,
-                    separated_well, points, weight_kg, co2_kg, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                RETURNING *
+                    separated_well, points, weight_kg, co2_kg, created_at, photo
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                RETURNING {SCAN_COLUMNS}
                 """,
                 (
                     user_id,
@@ -60,6 +67,7 @@ class ScanRepository:
                     weight_kg,
                     co2_kg,
                     created_at,
+                    photo,
                 ),
             ).fetchone()
             conn.commit()
@@ -80,5 +88,18 @@ class ScanRepository:
                 rows,
             )
             conn.commit()
+        finally:
+            conn.close()
+
+    def photo_for(self, user_id: int, scan_id: int) -> bytes | None:
+        conn = get_conn()
+        try:
+            row = conn.execute(
+                "SELECT photo FROM scans WHERE id = ? AND user_id = ?",
+                (scan_id, user_id),
+            ).fetchone()
+            if row is None or row["photo"] is None:
+                return None
+            return bytes(row["photo"])
         finally:
             conn.close()

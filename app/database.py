@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS scans (
     weight_kg REAL NOT NULL,
     co2_kg REAL NOT NULL,
     created_at TEXT NOT NULL,
+    photo BLOB,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
@@ -53,10 +54,12 @@ POSTGRES_STATEMENTS = [
         points integer NOT NULL DEFAULT 10,
         weight_kg double precision NOT NULL DEFAULT 0,
         co2_kg double precision NOT NULL DEFAULT 0,
-        created_at timestamptz NOT NULL DEFAULT now()
+        created_at timestamptz NOT NULL DEFAULT now(),
+        photo bytea
     )
     """,
     "CREATE INDEX IF NOT EXISTS idx_scans_user ON scans (user_id, created_at DESC)",
+    "ALTER TABLE scans ADD COLUMN IF NOT EXISTS photo bytea",
 ]
 
 
@@ -118,6 +121,9 @@ def init_db() -> bool:
                 conn.execute(statement)
         else:
             conn.raw.executescript(SQLITE_SCHEMA)
+            columns = {row[1] for row in conn.raw.execute("PRAGMA table_info(scans)").fetchall()}
+            if "photo" not in columns:
+                conn.execute("ALTER TABLE scans ADD COLUMN photo BLOB")
         conn.commit()
     finally:
         conn.close()

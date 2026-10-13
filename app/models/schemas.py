@@ -72,6 +72,7 @@ class ScanOut(BaseModel):
     accent: str
     warning: str
     recyclable: bool
+    has_photo: bool = False
 
 
 class DayCount(BaseModel):
