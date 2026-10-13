@@ -32,15 +32,16 @@ class UserRepository:
     def create(self, name: str, email: str, password_hash: str, created_at: str) -> dict:
         conn = get_conn()
         try:
-            cur = conn.execute(
+            row = conn.execute(
                 """
                 INSERT INTO users (name, email, password_hash, created_at)
                 VALUES (?, ?, ?, ?)
+                RETURNING id
                 """,
                 (name.strip(), email.lower().strip(), password_hash, created_at),
-            )
+            ).fetchone()
             conn.commit()
-            user_id = cur.lastrowid
+            user_id = int(row["id"])
         finally:
             conn.close()
         user = self.get_by_id(user_id)

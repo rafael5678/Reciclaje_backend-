@@ -42,28 +42,27 @@ class ScanRepository:
     ) -> dict:
         conn = get_conn()
         try:
-            cur = conn.execute(
+            row = conn.execute(
                 """
                 INSERT INTO scans (
                     user_id, material_code, object_name, confidence,
                     separated_well, points, weight_kg, co2_kg, created_at
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                RETURNING *
                 """,
                 (
                     user_id,
                     material_code,
                     object_name,
                     confidence,
-                    1 if separated_well else 0,
+                    bool(separated_well),
                     points,
                     weight_kg,
                     co2_kg,
                     created_at,
                 ),
-            )
+            ).fetchone()
             conn.commit()
-            scan_id = cur.lastrowid
-            row = conn.execute("SELECT * FROM scans WHERE id = ?", (scan_id,)).fetchone()
             return dict(row)
         finally:
             conn.close()

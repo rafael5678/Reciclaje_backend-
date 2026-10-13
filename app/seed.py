@@ -128,7 +128,7 @@ def _row(user_id, code, name, confidence, well, day, hour, minute, now):
         code,
         name,
         confidence,
-        1 if well else 0,
+        bool(well),
         10,
         material["weight_kg"],
         material["co2_kg"] if well else 0,
