@@ -1,0 +1,15 @@
+services:
+  api:
+    build: .
+    image: ecoscan-api
+    container_name: ecoscan-api
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ecoscan-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  ecoscan-data:
