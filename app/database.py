@@ -127,9 +127,6 @@ def init_db() -> bool:
         conn.commit()
     finally:
         conn.close()
-    from app.seed import seed_if_empty
-
-    seed_if_empty()
     return True
 
 

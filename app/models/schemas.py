@@ -7,6 +7,7 @@ class UserOut(BaseModel):
     id: int
     name: str
     email: str
+    guest: bool = False
 
 
 class TokenOut(BaseModel):
@@ -133,6 +134,7 @@ class AnalyzeOut(BaseModel):
     scores: list[ScoreOut]
     container: str
     full_name: str
+    model: Optional[str] = None
     guide: Optional[GuideOut] = None
 
 

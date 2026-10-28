@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database import init_db
 from app.env_load import load_env
 from app.services.photo_service import photo_service
-from app.services.vision_ai import has_gemini
+from app.services.vision_ai import status as gemini_status
 from app.views import auth_view, impact_view, material_view, scan_view
 
 load_env()
@@ -45,4 +45,11 @@ app.include_router(impact_view.router, prefix="/api")
 
 @app.get("/api/health")
 def health() -> dict:
-    return {"status": "ok", "service": "ecoscan", "gemini": has_gemini(), "database": database_ready}
+    gemini = gemini_status()
+    return {
+        "status": "ok",
+        "service": "ecoscan",
+        "gemini": gemini["enabled"],
+        "database": database_ready,
+        "vision": gemini,
+    }
