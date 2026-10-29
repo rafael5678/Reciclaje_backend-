@@ -91,6 +91,15 @@ class ScanRepository:
         finally:
             conn.close()
 
+    def move(self, from_user: int, to_user: int) -> int:
+        conn = get_conn()
+        try:
+            cursor = conn.execute("UPDATE scans SET user_id = ? WHERE user_id = ?", (to_user, from_user))
+            conn.commit()
+            return max(0, int(cursor.rowcount or 0))
+        finally:
+            conn.close()
+
     def photo_for(self, user_id: int, scan_id: int) -> bytes | None:
         conn = get_conn()
         try:

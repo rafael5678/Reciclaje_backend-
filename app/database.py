@@ -31,6 +31,26 @@ CREATE TABLE IF NOT EXISTS scans (
 );
 
 CREATE INDEX IF NOT EXISTS idx_scans_user ON scans(user_id, created_at);
+
+CREATE TABLE IF NOT EXISTS classrooms (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    code TEXT NOT NULL UNIQUE,
+    owner_id INTEGER NOT NULL,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS classroom_members (
+    classroom_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    joined_at TEXT NOT NULL,
+    PRIMARY KEY (classroom_id, user_id),
+    FOREIGN KEY (classroom_id) REFERENCES classrooms(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_members_user ON classroom_members(user_id);
 """
 
 POSTGRES_STATEMENTS = [
@@ -60,6 +80,24 @@ POSTGRES_STATEMENTS = [
     """,
     "CREATE INDEX IF NOT EXISTS idx_scans_user ON scans (user_id, created_at DESC)",
     "ALTER TABLE scans ADD COLUMN IF NOT EXISTS photo bytea",
+    """
+    CREATE TABLE IF NOT EXISTS classrooms (
+        id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+        name text NOT NULL,
+        code text NOT NULL UNIQUE,
+        owner_id bigint NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        created_at timestamptz NOT NULL DEFAULT now()
+    )
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS classroom_members (
+        classroom_id bigint NOT NULL REFERENCES classrooms(id) ON DELETE CASCADE,
+        user_id bigint NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        joined_at timestamptz NOT NULL DEFAULT now(),
+        PRIMARY KEY (classroom_id, user_id)
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS idx_members_user ON classroom_members (user_id)",
 ]
 
 
@@ -98,11 +136,15 @@ def database_url() -> str:
 def get_conn() -> Database:
     url = database_url()
     if url:
-        import psycopg
-        from psycopg.rows import dict_row
+        try:
+            import psycopg
+            from psycopg.rows import dict_row
 
-        raw = psycopg.connect(with_ssl(url), row_factory=dict_row)
-        return Database(raw, postgres=True)
+            # connect_timeout=5 evita bloqueos prolongados si Supabase está inactivo o pausado
+            raw = psycopg.connect(with_ssl(url), row_factory=dict_row, connect_timeout=5)
+            return Database(raw, postgres=True)
+        except Exception as exc:
+            print(f"[EcoScan DB] Falló conexión a Postgres ({exc}). Usando SQLite de respaldo.")
     os.makedirs(DATA_DIR, exist_ok=True)
     raw = sqlite3.connect(DB_PATH)
     raw.row_factory = sqlite3.Row
@@ -118,13 +160,17 @@ def init_db() -> bool:
     try:
         if conn.postgres:
             for statement in POSTGRES_STATEMENTS:
-                conn.execute(statement)
+                try:
+                    conn.execute(statement)
+                    conn.commit()
+                except Exception as stmt_err:
+                    print(f"[EcoScan DB Statement Notice]: {stmt_err}")
         else:
             conn.raw.executescript(SQLITE_SCHEMA)
             columns = {row[1] for row in conn.raw.execute("PRAGMA table_info(scans)").fetchall()}
             if "photo" not in columns:
                 conn.execute("ALTER TABLE scans ADD COLUMN photo BLOB")
-        conn.commit()
+            conn.commit()
     finally:
         conn.close()
     return True

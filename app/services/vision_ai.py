@@ -23,28 +23,45 @@ from PIL import Image
 from app.models.catalog import BY_CODE
 from app.services.guide import attach_guide
 
-DEFAULT_MODELS = "gemini-3.1-flash-lite,gemini-3-flash-preview"
+DEFAULT_MODELS = "gemini-3.1-flash-lite,gemini-3.5-flash-lite,gemini-2.5-flash,gemini-2.0-flash"
 CODES = ["PET", "HDPE", "MLT", "PAP", "VID", "MET", "ORG", "GEN"]
 # Con resolución baja la foto cuesta unos 280 tokens en lugar de ~1100.
-IMAGE_SIDE = 384
-MAX_OUTPUT_TOKENS = 320
+IMAGE_SIDE = 512
+MAX_OUTPUT_TOKENS = 400
 CACHE_SIZE = 64
-PROMPT = """Clasificador de EcoScan. Di QUÉ objeto hay en la foto (ignora mesa, mano y fondo).
+PROMPT = """Eres el clasificador de EcoScan. Mira la foto y di QUÉ objeto es, no de qué material está hecho el fondo.
 
-Código:
-PET botella plástica transparente de bebida (amarillo)
-HDPE envase opaco de champú, detergente o yogur (amarillo)
-MLT caja Tetra Pak de leche o jugo (amarillo)
-PAP hoja de papel o caja de cartón (azul)
-VID frasco o botella de vidrio (verde)
-MET lata de metal (gris)
-ORG restos de comida, cáscaras, fruta (marrón)
-GEN no reciclable: lapicero, lápiz, celular, control, papel higiénico, servilleta sucia, bolsa de snack (negro)
+Elige exactamente un código:
+PET = botella plástica transparente de agua, gaseosa o jugo. Contenedor amarillo.
+HDPE = envase opaco de champú, detergente o yogur. Amarillo.
+MLT = caja de leche o jugo tipo Tetra Pak. Amarillo.
+PAP = hoja de papel o caja de cartón. Azul.
+VID = frasco o botella de vidrio. Verde.
+MET = lata de metal. Gris.
+ORG = restos de comida, cáscaras, fruta. Marrón.
+GEN = no se recicla: lapicero, bolígrafo, pluma, lápiz, celular, cargador, cables, aparatos electrónicos, control remoto, papel higiénico, servilleta sucia, bolsa de snack.
 
-Un lapicero o lápiz es GEN aunque sea plástico transparente.
+Reglas estrictas:
+- Cargadores, cables, pilas, baterías o aparatos electrónicos son siempre GEN (punto limpio / RAEE).
+- Un bolígrafo, lapicero o pluma (aunque sea de plástico transparente) es GEN, nunca PET ni HDPE.
+- Un lápiz es GEN.
+- Una botella de gaseosa o agua es PET.
+- Ignora la mesa, la mano, la ropa y el fondo.
+- Si hay duda entre envase y útil de escribir, gana el útil de escribir.
 
-Responde SOLO este JSON, en español, hablando de ESE objeto:
-{"code":"GEN","object_name":"Control remoto","confidence":0.95,"meaning":"2 frases","destination":"contenedor y color","actions":["paso","paso","paso"],"tip":"advertencia corta"}"""
+También explica EN ESPAÑOL, como a un vecino, qué es ESE objeto y qué hacer con ÉL. No copies un texto genérico del material: habla del objeto de la foto (control, lapicero, papel higiénico, botella, etc.).
+
+Responde SOLO JSON:
+{
+  "code":"GEN",
+  "object_name":"Control remoto",
+  "confidence":0.95,
+  "meaning":"Qué es y por qué se recicla o no de esa forma (2 o 3 frases).",
+  "destination":"A qué contenedor o punto va, con el color. Si hay pilas o RAEE, dilo.",
+  "actions":["Paso concreto 1","Paso concreto 2","Paso concreto 3"],
+  "tip":"Una advertencia corta para no contaminar el resto del reciclaje."
+}
+"""
 
 
 def _models() -> list[str]:
@@ -54,9 +71,9 @@ def _models() -> list[str]:
 
 def _per_minute() -> int:
     try:
-        return max(1, int(os.environ.get("GEMINI_RPM", "6")))
+        return max(1, int(os.environ.get("GEMINI_RPM", "15")))
     except ValueError:
-        return 6
+        return 15
 
 
 class _Budget:
@@ -174,12 +191,12 @@ def classify(image: Image.Image) -> dict | None:
 
 
 def _cooldown(body: str) -> float:
-    if re.search(r"per ?day|PerDay", body, re.IGNORECASE):
-        return 60 * 60
+    if re.search(r"per ?day|PerDay|RESOURCE_EXHAUSTED", body, re.IGNORECASE):
+        return 150 * 60
     match = re.search(r'"retryDelay"\s*:\s*"(\d+(?:\.\d+)?)s"', body)
     if match:
         return max(5.0, float(match.group(1)))
-    return 60.0
+    return 150.0
 
 
 def _image_part(image: Image.Image) -> tuple[dict, str]:
@@ -225,7 +242,7 @@ def _ask(key: str, model: str, image_part: dict) -> dict:
         headers={"Content-Type": "application/json", "x-goog-api-key": key},
         method="POST",
     )
-    with urlopen(request, timeout=25) as response:
+    with urlopen(request, timeout=10) as response:
         return json.loads(response.read().decode("utf-8"))
 
 

@@ -13,6 +13,7 @@ class UserOut(BaseModel):
 class TokenOut(BaseModel):
     token: str
     user: UserOut
+    moved_scans: int = 0
 
 
 class LoginIn(BaseModel):
@@ -136,6 +137,37 @@ class AnalyzeOut(BaseModel):
     full_name: str
     model: Optional[str] = None
     guide: Optional[GuideOut] = None
+
+
+class ClassroomIn(BaseModel):
+    name: str = Field(min_length=3, max_length=60)
+
+
+class JoinIn(BaseModel):
+    code: str = Field(min_length=4, max_length=12)
+
+
+class ClassroomOut(BaseModel):
+    id: int
+    name: str
+    code: str
+    members: int
+    is_owner: bool
+
+
+class RankingRow(BaseModel):
+    position: int
+    name: str
+    scans: int
+    points: int
+    week_points: int
+    co2_kg: float
+    is_me: bool
+
+
+class RankingOut(BaseModel):
+    classroom: ClassroomOut
+    rows: list[RankingRow]
 
 
 class MessageOut(BaseModel):
