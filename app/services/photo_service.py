@@ -76,19 +76,22 @@ class PhotoService:
     def analyze(self, image: Image.Image) -> dict:
         started = time.perf_counter()
         rgb = image.convert("RGB")
-        rgb.thumbnail((1280, 1280), Image.Resampling.BILINEAR)
-        array = np.asarray(rgb, dtype=np.uint8)
         from app.services.vision_ai import classify as classify_gemini
 
         gemini = classify_gemini(rgb)
         if gemini:
             return gemini
+
+        print("[EcoScan Photo] Gemini no disponible, usando respaldo local ligero...")
+        rgb_fast = rgb.copy()
+        rgb_fast.thumbnail((384, 384), Image.Resampling.BILINEAR)
+        array = np.asarray(rgb_fast, dtype=np.uint8)
         stick = self._lock_thin_object(array)
         if stick:
             stick["inference_ms"] = round((time.perf_counter() - started) * 1000, 1)
             stick["engine"] = "forma"
             return attach_guide(stick)
-        mira = self._detect_mira(rgb)
+        mira = self._detect_mira(rgb_fast)
         box = mira["bbox"] if mira else content_box(array)
         trash = self._classify_trash(array, box)
         lock = self._lock_object(array, box)

@@ -23,7 +23,7 @@ from PIL import Image
 from app.models.catalog import BY_CODE
 from app.services.guide import attach_guide
 
-DEFAULT_MODELS = "gemini-3.1-flash-lite,gemini-3.5-flash-lite,gemini-2.5-flash,gemini-2.0-flash"
+DEFAULT_MODELS = "gemini-3.1-flash-lite,gemini-3.5-flash-lite,gemini-3-flash-preview,gemini-3.6-flash"
 CODES = ["PET", "HDPE", "MLT", "PAP", "VID", "MET", "ORG", "GEN"]
 # Con resolución baja la foto cuesta unos 280 tokens en lugar de ~1100.
 IMAGE_SIDE = 512
@@ -65,8 +65,14 @@ Responde SOLO JSON:
 
 
 def _models() -> list[str]:
-    raw = os.environ.get("GEMINI_MODELS", DEFAULT_MODELS)
-    return [name.strip() for name in raw.split(",") if name.strip()]
+    raw = os.environ.get("GEMINI_MODELS", "").strip()
+    preferred = [name.strip() for name in raw.split(",") if name.strip()] if raw else []
+    defaults = [name.strip() for name in DEFAULT_MODELS.split(",") if name.strip()]
+    combined = []
+    for m in preferred + defaults:
+        if m not in combined:
+            combined.append(m)
+    return combined
 
 
 def _per_minute() -> int:
@@ -157,36 +163,37 @@ def classify(image: Image.Image) -> dict | None:
     started = time.perf_counter()
     for model in _models():
         if not budget.available(model):
+            print(f"[EcoScan Gemini] Modelo {model} en enfriamiento")
             continue
         if not budget.take():
-            print("Gemini: límite por minuto alcanzado, uso los modelos locales")
-            return None
+            print(f"[EcoScan Gemini] Limite RPM en {model}")
+            continue
         try:
-            hit = _parse(_ask(key, model, payload))
+            raw_resp = _ask(key, model, payload)
+            hit = _parse(raw_resp)
+            if hit:
+                budget.remember(model, True)
+                hit["inference_ms"] = round((time.perf_counter() - started) * 1000, 1)
+                hit["engine"] = "gemini"
+                hit["model"] = model
+                _store(digest, hit)
+                return hit
+            budget.remember(model, False, "sin codigo valido")
+            print(f"[EcoScan Gemini] {model}: respuesta sin codigo valido")
         except HTTPError as error:
             body = error.read().decode("utf-8", errors="ignore")[:600]
             budget.remember(model, False, f"{error.code}")
-            print(f"Gemini {model}: {error.code} {body[:200]}")
+            print(f"[EcoScan Gemini] {model} HTTP {error.code}: {body[:200]}")
             if error.code == 429:
                 budget.cool(model, _cooldown(body))
-                continue
-            if error.code in (404, 503):
+            else:
                 budget.cool(model, 60)
-                continue
-            return None
-        except (URLError, TimeoutError, json.JSONDecodeError, KeyError, IndexError, ValueError, OSError) as error:
+            continue
+        except Exception as error:
             budget.remember(model, False, type(error).__name__)
-            print(f"Gemini {model}: {error}")
-            return None
-        if not hit:
-            budget.remember(model, False, "respuesta sin código")
-            return None
-        budget.remember(model, True)
-        hit["inference_ms"] = round((time.perf_counter() - started) * 1000, 1)
-        hit["engine"] = "gemini"
-        hit["model"] = model
-        _store(digest, hit)
-        return hit
+            print(f"[EcoScan Gemini] {model} {type(error).__name__}: {error}")
+            budget.cool(model, 60)
+            continue
     return None
 
 
