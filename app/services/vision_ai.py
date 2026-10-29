@@ -23,7 +23,7 @@ from PIL import Image
 from app.models.catalog import BY_CODE
 from app.services.guide import attach_guide
 
-DEFAULT_MODELS = "gemini-3.1-flash-lite,gemini-3.5-flash-lite,gemini-3-flash-preview,gemini-3.6-flash"
+DEFAULT_MODELS = "gemini-3.1-flash-lite,gemini-3-flash-preview"
 CODES = ["PET", "HDPE", "MLT", "PAP", "VID", "MET", "ORG", "GEN"]
 # Con resolución baja la foto cuesta unos 280 tokens en lugar de ~1100.
 IMAGE_SIDE = 512
@@ -77,9 +77,9 @@ def _models() -> list[str]:
 
 def _per_minute() -> int:
     try:
-        return max(1, int(os.environ.get("GEMINI_RPM", "15")))
+        return max(1, int(os.environ.get("GEMINI_RPM", "6")))
     except ValueError:
-        return 15
+        return 6
 
 
 class _Budget:
@@ -186,6 +186,8 @@ def classify(image: Image.Image) -> dict | None:
             print(f"[EcoScan Gemini] {model} HTTP {error.code}: {body[:200]}")
             if error.code == 429:
                 budget.cool(model, _cooldown(body))
+            elif error.code in {401, 403, 404}:
+                budget.cool(model, 3600)
             else:
                 budget.cool(model, 60)
             continue
