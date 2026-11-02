@@ -13,6 +13,7 @@ from PIL import Image
 
 from app.models.catalog import BY_CODE
 from app.services.guide import attach_guide
+from app.services.score import award_points
 
 BACKEND = Path(__file__).resolve().parents[2]
 ROOT = BACKEND.parent
@@ -61,6 +62,13 @@ TRASH_MAP = {
 CODES = ["PET", "HDPE", "MLT", "PAP", "VID", "MET", "ORG", "GEN"]
 
 
+def _with_points(hit: dict) -> dict:
+    points, why = award_points(hit["material_code"], float(hit.get("confidence") or 0), True)
+    hit["points"] = points
+    hit["points_why"] = why
+    return hit
+
+
 class PhotoService:
     def __init__(self) -> None:
         self._session = None
@@ -80,7 +88,7 @@ class PhotoService:
 
         gemini = classify_gemini(rgb)
         if gemini:
-            return gemini
+            return _with_points(gemini)
 
         print("[EcoScan Photo] Gemini no disponible, usando respaldo local ligero...")
         rgb_fast = rgb.copy()
@@ -90,7 +98,7 @@ class PhotoService:
         if stick:
             stick["inference_ms"] = round((time.perf_counter() - started) * 1000, 1)
             stick["engine"] = "forma"
-            return attach_guide(stick)
+            return _with_points(attach_guide(stick))
         mira = self._detect_mira(rgb_fast)
         box = mira["bbox"] if mira else content_box(array)
         trash = self._classify_trash(array, box)
@@ -98,7 +106,7 @@ class PhotoService:
         hit = self._fuse(mira, trash, lock, box)
         hit["inference_ms"] = round((time.perf_counter() - started) * 1000, 1)
         hit["engine"] = "mira+trashnet"
-        return attach_guide(hit)
+        return _with_points(attach_guide(hit))
 
     def _lock_thin_object(self, array: np.ndarray) -> dict | None:
         box = find_stick_box(array)
@@ -218,7 +226,7 @@ class PhotoService:
             if code in {"PET", "HDPE"}:
                 return refine_plastic(make_hit(code, name, clamp(0.58 + 0.22 * mira["confidence"] + 0.22 * trash["confidence"], 0.66, 0.98), mira["bbox"]))
             if code == "PAP":
-                name = "Caja de cartón" if trash["label"] == "cardboard" else "Hoja de papel"
+                name = "Caja de cartón" if lock and lock.get("object_name") == "Caja de cartón" else "Hoja de papel"
             return make_hit(code, name, clamp(0.58 + 0.22 * mira["confidence"] + 0.22 * trash["confidence"], 0.66, 0.98), mira["bbox"])
         if trash and trash["confidence"] >= 0.6 and (not mira or mira["confidence"] < 0.58):
             code, name = TRASH_MAP[trash["label"]]

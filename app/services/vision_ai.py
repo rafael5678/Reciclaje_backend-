@@ -35,7 +35,7 @@ Elige exactamente un código:
 PET = botella plástica transparente de agua, gaseosa o jugo. Contenedor amarillo.
 HDPE = envase opaco de champú, detergente o yogur. Amarillo.
 MLT = caja de leche o jugo tipo Tetra Pak. Amarillo.
-PAP = hoja de papel o caja de cartón. Azul.
+PAP = papel o cartón. Azul. Si es una hoja, folio o servilleta de papel SUELTA, el objeto es «Hoja de papel», NUNCA «Caja de cartón». Caja de cartón solo si ves una caja corrugada con solapas o un empaque.
 VID = frasco o botella de vidrio. Verde.
 MET = lata de metal. Gris.
 ORG = restos de comida, cáscaras, fruta. Marrón.
@@ -48,6 +48,8 @@ Reglas estrictas:
 - Una botella de gaseosa o agua es PET.
 - Ignora la mesa, la mano, la ropa y el fondo.
 - Si hay duda entre envase y útil de escribir, gana el útil de escribir.
+- Una hoja, folio, cuaderno abierto o papel arrugado es «Hoja de papel» (PAP). No la llames caja.
+- object_name es el nombre del objeto de ESTA foto (Hoja de papel, Bolígrafo, Cargador…), no el nombre genérico del material.
 
 También explica EN ESPAÑOL, como a un vecino, qué es ESE objeto y qué hacer con ÉL. No copies un texto genérico del material: habla del objeto de la foto (control, lapicero, papel higiénico, botella, etc.).
 
@@ -251,7 +253,7 @@ def _ask(key: str, model: str, image_part: dict) -> dict:
         headers={"Content-Type": "application/json", "x-goog-api-key": key},
         method="POST",
     )
-    with urlopen(request, timeout=10) as response:
+    with urlopen(request, timeout=22) as response:
         return json.loads(response.read().decode("utf-8"))
 
 
@@ -265,7 +267,8 @@ def _parse(raw: dict) -> dict | None:
     if code not in BY_CODE:
         return None
     material = BY_CODE[code]
-    name = str(data.get("object_name") or material["object_name"])[:80]
+    raw_name = str(data.get("object_name") or "").strip()
+    name = (raw_name or _default_name(code, material["object_name"]))[:80]
     confidence = max(0.4, min(0.98, float(data.get("confidence") or 0.86)))
     hit = {
         "material_code": code,
@@ -277,3 +280,9 @@ def _parse(raw: dict) -> dict | None:
         "full_name": material["full_name"],
     }
     return attach_guide(hit, data)
+
+
+def _default_name(code: str, fallback: str) -> str:
+    if code == "PAP":
+        return "Hoja de papel"
+    return fallback

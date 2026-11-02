@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Response
 
-from app.models.schemas import ClassroomIn, ClassroomOut, JoinIn, RankingOut
+from app.models.schemas import ClassroomIn, ClassroomOut, InviteOut, JoinIn, RankingOut
 from app.services.classroom_service import classroom_service
 from app.views.deps import CurrentUser
 
@@ -20,6 +20,11 @@ def create_classroom(body: ClassroomIn, user: dict = CurrentUser) -> ClassroomOu
 @router.post("/classrooms/join", response_model=ClassroomOut)
 def join_classroom(body: JoinIn, user: dict = CurrentUser) -> ClassroomOut:
     return classroom_service.join(user, body.code)
+
+
+@router.get("/classrooms/{classroom_id}/invite", response_model=InviteOut)
+def classroom_invite(classroom_id: int, user: dict = CurrentUser) -> InviteOut:
+    return classroom_service.invite(user, classroom_id)
 
 
 @router.get("/classrooms/{classroom_id}/ranking", response_model=RankingOut)

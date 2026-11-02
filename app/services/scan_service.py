@@ -7,10 +7,10 @@ from PIL import Image
 from app.models.schemas import ScanOut
 from app.repositories.material_repository import MaterialRepository
 from app.repositories.scan_repository import ScanRepository
+from app.services.score import award_points
 
 material_repository = MaterialRepository()
 scan_repository = ScanRepository()
-POINTS_PER_SCAN = 10
 
 
 def present_scan(row: dict) -> ScanOut:
@@ -59,13 +59,14 @@ class ScanService:
         if material is None:
             raise HTTPException(status_code=400, detail="Ese material no está en la guía")
         created_at = datetime.now().astimezone().isoformat(timespec="seconds")
+        points, _why = award_points(material["code"], confidence, separated_well)
         row = scan_repository.insert(
             user_id=user_id,
             material_code=material["code"],
             object_name=object_name.strip(),
             confidence=confidence,
             separated_well=separated_well,
-            points=POINTS_PER_SCAN,
+            points=points,
             weight_kg=material["weight_kg"],
             co2_kg=material["co2_kg"] if separated_well else 0,
             created_at=created_at,

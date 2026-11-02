@@ -27,6 +27,14 @@ class ClassroomRepository:
         finally:
             conn.close()
 
+    def all(self) -> list[dict]:
+        conn = get_conn()
+        try:
+            rows = conn.execute("SELECT id, name, code, owner_id FROM classrooms").fetchall()
+            return [dict(row) for row in rows]
+        finally:
+            conn.close()
+
     def by_code(self, code: str) -> dict | None:
         conn = get_conn()
         try:
@@ -110,7 +118,14 @@ class ClassroomRepository:
                        COUNT(s.id) AS scans,
                        COALESCE(SUM(s.points), 0) AS points,
                        COALESCE(SUM(s.co2_kg), 0) AS co2_kg,
-                       COALESCE(SUM(CASE WHEN s.created_at >= ? THEN s.points ELSE 0 END), 0) AS week_points
+                       COALESCE(SUM(CASE WHEN s.created_at >= ? THEN s.points ELSE 0 END), 0) AS week_points,
+                       (
+                         SELECT s2.material_code FROM scans s2
+                         WHERE s2.user_id = u.id
+                         GROUP BY s2.material_code
+                         ORDER BY COUNT(*) DESC
+                         LIMIT 1
+                       ) AS top_code
                 FROM classroom_members m
                 JOIN users u ON u.id = m.user_id
                 LEFT JOIN scans s ON s.user_id = u.id

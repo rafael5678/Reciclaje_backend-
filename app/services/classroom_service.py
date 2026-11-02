@@ -1,28 +1,80 @@
+import hashlib
+import hmac
+import os
 import secrets
+import time
 from datetime import datetime, timedelta
 
 from fastapi import HTTPException
 
-from app.models.schemas import ClassroomOut, RankingOut, RankingRow
+from app.models.schemas import ClassroomOut, InviteOut, RankingOut, RankingRow
 from app.repositories.classroom_repository import ClassroomRepository
 from app.services.auth_service import is_guest
 
 classroom_repository = ClassroomRepository()
 CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 MAX_CLASSROOMS = 10
+INVITE_PERIOD = 30
 
 
 def _now() -> str:
     return datetime.now().astimezone().isoformat(timespec="seconds")
 
 
+def _secret() -> bytes:
+    return (os.environ.get("ECOSCAN_SECRET") or "ecoscan").encode("utf-8")
+
+
+def _window(now: float | None = None) -> int:
+    return int((now if now is not None else time.time()) // INVITE_PERIOD)
+
+
+def live_code(row: dict, window: int | None = None) -> str:
+    stamp = window if window is not None else _window()
+    digest = hmac.new(_secret(), f"{row['id']}|{row['code']}|{stamp}".encode("utf-8"), hashlib.sha256).hexdigest()
+    return "".join(CODE_ALPHABET[int(digest[index : index + 2], 16) % len(CODE_ALPHABET)] for index in range(0, 12, 2))
+
+
+def _expires_in() -> int:
+    leftover = INVITE_PERIOD - int(time.time() % INVITE_PERIOD)
+    return leftover if leftover > 0 else INVITE_PERIOD
+
+
+def _tree(points: int, top_code: str | None) -> tuple[str, int]:
+    code = (top_code or "").upper()
+    if code in {"PET", "HDPE", "MLT"}:
+        kind = "palmera"
+    elif code == "ORG":
+        kind = "frutal"
+    elif code == "PAP":
+        kind = "pino"
+    elif code in {"VID", "MET"}:
+        kind = "roble"
+    else:
+        kind = "ceiba"
+    if points >= 400:
+        stage = 5
+    elif points >= 200:
+        stage = 4
+    elif points >= 100:
+        stage = 3
+    elif points >= 50:
+        stage = 2
+    elif points >= 20:
+        stage = 1
+    else:
+        stage = 0
+    return kind, stage
+
+
 def _present(row: dict, user_id: int, members: int | None = None) -> ClassroomOut:
     return ClassroomOut(
         id=row["id"],
         name=row["name"],
-        code=row["code"],
+        code=live_code(row),
         members=int(members if members is not None else row.get("members", 0)),
         is_owner=int(row["owner_id"]) == user_id,
+        invite_expires_in=_expires_in(),
     )
 
 
@@ -41,11 +93,21 @@ class ClassroomService:
                 return _present(row, user["id"], members=1)
         raise HTTPException(status_code=500, detail="No pude generar un código. Intenta otra vez")
 
+    def invite(self, user: dict, classroom_id: int) -> InviteOut:
+        row = self._member_room(user, classroom_id)
+        return InviteOut(code=live_code(row), expires_in=_expires_in(), period=INVITE_PERIOD)
+
     def join(self, user: dict, code: str) -> ClassroomOut:
         self._require_account(user)
-        row = classroom_repository.by_code(code.strip().upper())
+        needle = code.strip().upper()
+        window = _window()
+        row = None
+        for candidate in classroom_repository.all():
+            if live_code(candidate, window) == needle or live_code(candidate, window - 1) == needle:
+                row = candidate
+                break
         if row is None:
-            raise HTTPException(status_code=404, detail="No existe un salón con ese código")
+            raise HTTPException(status_code=404, detail="Ese código ya no vale o no existe. Pide el código nuevo al dueño del salón.")
         if not classroom_repository.is_member(row["id"], user["id"]):
             if len(classroom_repository.for_user(user["id"])) >= MAX_CLASSROOMS:
                 raise HTTPException(status_code=400, detail=f"Puedes estar en máximo {MAX_CLASSROOMS} salones")
@@ -63,18 +125,22 @@ class ClassroomService:
         today = datetime.now().astimezone().replace(hour=0, minute=0, second=0, microsecond=0)
         week_start = (today - timedelta(days=6)).isoformat(timespec="seconds")
         rows = classroom_repository.ranking(row["id"], week_start)
-        ranked = [
-            RankingRow(
-                position=index + 1,
-                name=item["name"],
-                scans=int(item["scans"]),
-                points=int(item["points"]),
-                week_points=int(item["week_points"]),
-                co2_kg=round(float(item["co2_kg"]), 2),
-                is_me=int(item["user_id"]) == user["id"],
+        ranked = []
+        for index, item in enumerate(rows):
+            kind, stage = _tree(int(item["points"]), item.get("top_code"))
+            ranked.append(
+                RankingRow(
+                    position=index + 1,
+                    name=item["name"],
+                    scans=int(item["scans"]),
+                    points=int(item["points"]),
+                    week_points=int(item["week_points"]),
+                    co2_kg=round(float(item["co2_kg"]), 2),
+                    is_me=int(item["user_id"]) == user["id"],
+                    tree_kind=kind,
+                    tree_stage=stage,
+                )
             )
-            for index, item in enumerate(rows)
-        ]
         return RankingOut(classroom=_present(row, user["id"], members=len(ranked)), rows=ranked)
 
     def _member_room(self, user: dict, classroom_id: int) -> dict:

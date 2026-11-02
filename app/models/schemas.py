@@ -137,6 +137,8 @@ class AnalyzeOut(BaseModel):
     full_name: str
     model: Optional[str] = None
     guide: Optional[GuideOut] = None
+    points: int = 10
+    points_why: list[str] = Field(default_factory=list)
 
 
 class ClassroomIn(BaseModel):
@@ -153,6 +155,13 @@ class ClassroomOut(BaseModel):
     code: str
     members: int
     is_owner: bool
+    invite_expires_in: int = 30
+
+
+class InviteOut(BaseModel):
+    code: str
+    expires_in: int
+    period: int = 30
 
 
 class RankingRow(BaseModel):
@@ -163,6 +172,8 @@ class RankingRow(BaseModel):
     week_points: int
     co2_kg: float
     is_me: bool
+    tree_kind: str = "roble"
+    tree_stage: int = 0
 
 
 class RankingOut(BaseModel):
