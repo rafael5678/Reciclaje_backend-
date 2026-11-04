@@ -38,6 +38,7 @@ class ScanRepository:
         created_at: str,
         photo: bytes | None = None,
     ) -> dict:
+        """Insert a scan, optionally with a photo."""
         conn = get_conn()
         try:
             row = conn.execute(
