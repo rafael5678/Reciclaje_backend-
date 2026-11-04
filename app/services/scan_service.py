@@ -28,6 +28,7 @@ class ScanService:
         separated_well: bool,
         photo: bytes | None = None,
     ) -> ScanOut:
+        """Insert a new row and return it."""
         material = material_repository.get(material_code)
         if material is None:
             raise HTTPException(status_code=400, detail="Ese material no está en la guía")
