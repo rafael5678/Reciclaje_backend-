@@ -118,6 +118,7 @@ class Database:
         return self.raw.execute(sql, params)
 
     def executemany(self, sql: str, rows: list[tuple]) -> None:
+        """Run a SQL statement for many rows."""
         sql = sql.replace("?", "%s") if self.postgres else sql
         if self.postgres:
             with self.raw.cursor() as cursor:
