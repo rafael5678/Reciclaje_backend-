@@ -1,3 +1,4 @@
+"""Aplicacion FastAPI: CORS, salud y routers."""
 import os
 from contextlib import asynccontextmanager
 
