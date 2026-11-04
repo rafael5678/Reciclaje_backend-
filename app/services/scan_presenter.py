@@ -40,6 +40,7 @@ class ScanPresenter:
         )
 
     def as_text(self, value) -> str:
+        """Normalize timestamps to ISO text."""
         if isinstance(value, datetime):
             return value.isoformat()
         return str(value)
