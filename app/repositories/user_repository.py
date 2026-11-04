@@ -35,6 +35,7 @@ class UserRepository:
             conn.close()
 
     def create(self, name: str, email: str, password_hash: str, created_at: str) -> dict:
+        """Insert a new row and return it."""
         conn = get_conn()
         try:
             row = conn.execute(
