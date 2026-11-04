@@ -1,3 +1,4 @@
+"""Hash de contrasena y tokens HMAC de sesion."""
 import hashlib
 import hmac
 import os
