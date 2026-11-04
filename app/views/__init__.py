@@ -1,1 +1,1 @@
-"""Rutas HTTP. Las vistas delegan en servicios, no en SQL."""
+"""HTTP routes. Views call services, not SQL."""
