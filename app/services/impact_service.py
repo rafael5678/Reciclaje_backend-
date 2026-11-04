@@ -1,3 +1,4 @@
+"""Agrega escaneos en impacto semanal y categorias."""
 from datetime import datetime, timedelta
 
 from app.models.catalog import CATEGORY_COLORS, CATEGORY_ORDER
