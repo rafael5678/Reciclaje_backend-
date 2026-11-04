@@ -1,4 +1,4 @@
-"""Rutas del catalogo de materiales."""
+"""Material catalog routes."""
 from fastapi import APIRouter
 
 from app.models.schemas import MaterialOut
