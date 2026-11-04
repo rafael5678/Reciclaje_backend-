@@ -1,23 +1,23 @@
 # Python 3.12 slim image for the FastAPI service.
 FROM python:3.12-slim-bookworm
-# libgomp is required by ONNX Runtime.
 
 WORKDIR /app
 
+# libgomp is required by ONNX Runtime.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends libgomp1 \
-# Install Python dependencies first for better layer caching.
     && rm -rf /var/lib/apt/lists/*
 
-# Application package and local vision models.
+# Install Python dependencies first for better layer caching.
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Application package and local vision models.
 COPY app.py .
-# Runtime folder for optional photo dumps.
 COPY app ./app
 COPY models ./models
 
+# Runtime folder for optional photo dumps.
 RUN mkdir -p /app/data/uploads
 
 EXPOSE 8000
