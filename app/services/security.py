@@ -36,6 +36,7 @@ class Security:
         return f"{payload}.{signature}"
 
     def read_token(self, token: str) -> int | None:
+        """Parse a session token into a user id."""
         try:
             user_id_str, expires_str, signature = token.split(".", 2)
             payload = f"{user_id_str}.{expires_str}"
