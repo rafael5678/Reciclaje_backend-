@@ -25,7 +25,7 @@ from app.services.guide import attach_guide
 
 DEFAULT_MODELS = "gemini-3.1-flash-lite,gemini-3-flash-preview"
 CODES = ["PET", "HDPE", "MLT", "PAP", "VID", "MET", "ORG", "GEN"]
-# Con resolución baja la foto cuesta unos 280 tokens en lugar de ~1100.
+# Low media resolution costs about 280 tokens instead of ~1100.
 IMAGE_SIDE = 512
 MAX_OUTPUT_TOKENS = 400
 CACHE_SIZE = 64
