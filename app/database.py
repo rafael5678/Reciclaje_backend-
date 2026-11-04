@@ -142,7 +142,7 @@ def get_conn() -> Database:
             import psycopg
             from psycopg.rows import dict_row
 
-            # connect_timeout=5 evita bloqueos prolongados si Supabase está inactivo o pausado
+            # connect_timeout=5 avoids long hangs if Supabase is idle or paused
             raw = psycopg.connect(with_ssl(url), row_factory=dict_row, connect_timeout=5)
             return Database(raw, postgres=True)
         except Exception as exc:
