@@ -31,6 +31,7 @@ class ClassroomRepository:
             conn.close()
 
     def all(self) -> list[dict]:
+        """List every classroom."""
         conn = get_conn()
         try:
             rows = conn.execute("SELECT id, name, code, owner_id FROM classrooms").fetchall()
