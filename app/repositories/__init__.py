@@ -1,1 +1,1 @@
-"""Acceso a datos: usuarios, escaneos, materiales y salones."""
+"""Data access: users, scans, materials, and classrooms."""
