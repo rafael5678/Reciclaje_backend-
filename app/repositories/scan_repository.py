@@ -1,4 +1,4 @@
-"""Tabla scans: historial, foto y traslado de invitado."""
+"""scans table: history, photo, and guest transfer."""
 from app.database import get_conn
 
 SCAN_COLUMNS = """
