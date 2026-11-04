@@ -10,6 +10,7 @@ SCAN_COLUMNS = """
 
 class ScanRepository:
     def list_by_user(self, user_id: int) -> list[dict]:
+        """List scans for one user, newest first."""
         conn = get_conn()
         try:
             rows = conn.execute(
