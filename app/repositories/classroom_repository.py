@@ -1,4 +1,4 @@
-"""Tablas classrooms y classroom_members."""
+"""classrooms and classroom_members tables."""
 from datetime import datetime
 from app.database import get_conn
 
