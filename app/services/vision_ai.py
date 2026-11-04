@@ -96,6 +96,7 @@ class _Budget:
             self._calls.popleft()
 
     def take(self) -> bool:
+        """Consume one slot in the per-minute budget."""
         now = time.time()
         with self._lock:
             self._trim(now)
