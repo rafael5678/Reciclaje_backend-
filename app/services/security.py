@@ -1,4 +1,4 @@
-"""Hash de contrasena y tokens HMAC de sesion."""
+"""Password hashing and HMAC session tokens."""
 import hashlib
 import hmac
 import os
