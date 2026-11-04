@@ -128,6 +128,7 @@ class _Budget:
         return until if until > time.time() else None
 
     def remember(self, model: str, ok: bool, detail: str = "") -> None:
+        """Record the last Gemini call outcome."""
         with self._lock:
             self._last = {"model": model, "ok": ok, "detail": detail[:160], "at": int(time.time())}
 
