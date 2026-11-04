@@ -101,6 +101,7 @@ class ClassroomRepository:
             conn.close()
 
     def remove_member(self, classroom_id: int, user_id: int) -> None:
+        """Remove a member from a classroom."""
         conn = get_conn()
         try:
             conn.execute("DELETE FROM classroom_members WHERE classroom_id = ? AND user_id = ?", (classroom_id, user_id))
