@@ -1,1 +1,1 @@
-"""Catálogo de materiales y esquemas Pydantic de la API."""
+"""Material catalog and Pydantic API schemas."""
