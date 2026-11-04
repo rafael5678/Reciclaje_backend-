@@ -1,3 +1,4 @@
+"""Tabla users: alta, busqueda y borrado."""
 from app.database import get_conn
 
 
