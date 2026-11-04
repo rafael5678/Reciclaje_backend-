@@ -8,17 +8,6 @@ SCAN_COLUMNS = """
 
 
 class ScanRepository:
-    def count_for(self, user_id: int) -> int:
-        conn = get_conn()
-        try:
-            row = conn.execute(
-                "SELECT COUNT(*) AS n FROM scans WHERE user_id = ?",
-                (user_id,),
-            ).fetchone()
-            return int(row["n"])
-        finally:
-            conn.close()
-
     def list_by_user(self, user_id: int) -> list[dict]:
         conn = get_conn()
         try:
@@ -72,22 +61,6 @@ class ScanRepository:
             ).fetchone()
             conn.commit()
             return dict(row)
-        finally:
-            conn.close()
-
-    def insert_many(self, rows: list[tuple]) -> None:
-        conn = get_conn()
-        try:
-            conn.executemany(
-                """
-                INSERT INTO scans (
-                    user_id, material_code, object_name, confidence,
-                    separated_well, points, weight_kg, co2_kg, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                rows,
-            )
-            conn.commit()
         finally:
             conn.close()
 
