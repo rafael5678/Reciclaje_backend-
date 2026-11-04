@@ -25,6 +25,7 @@ class UserRepository:
             conn.close()
 
     def delete(self, user_id: int) -> None:
+        """Delete a row and related memberships."""
         conn = get_conn()
         try:
             conn.execute("DELETE FROM classroom_members WHERE user_id = ?", (user_id,))
