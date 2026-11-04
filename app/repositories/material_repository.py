@@ -1,4 +1,4 @@
-"""Lectura del catalogo en memoria."""
+"""In-memory material catalog reads."""
 from app.models.catalog import BY_CODE, MATERIALS
 
 
