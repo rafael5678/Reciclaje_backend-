@@ -43,6 +43,7 @@ class AuthService:
         return self._session(user, self._claim_guest(guest_token, user["id"]))
 
     def guest(self) -> dict:
+        """Create a guest account."""
         created = datetime.now().astimezone().isoformat(timespec="seconds")
         email = f"invitado-{secrets.token_hex(6)}{GUEST_DOMAIN}"
         user = user_repository.create("Invitado", email, hash_password(secrets.token_urlsafe(24)), created)
