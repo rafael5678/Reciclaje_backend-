@@ -1,3 +1,4 @@
+"""Pasa una fila de escaneo al DTO ScanOut."""
 from datetime import datetime
 
 from fastapi import HTTPException
