@@ -4,6 +4,7 @@
 # Arrays for local vision
 # Image decoding
 # MIRA ONNX runtime
+# Postgres driver for Supabase
 fastapi==0.115.6
 uvicorn==0.34.0
 python-multipart==0.0.20
