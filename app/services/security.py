@@ -20,6 +20,7 @@ class Security:
         return f"{salt.hex()}${digest.hex()}"
 
     def verify_password(self, password: str, stored: str) -> bool:
+        """Check a password against the stored hash."""
         try:
             salt_hex, digest_hex = stored.split("$", 1)
         except ValueError:
