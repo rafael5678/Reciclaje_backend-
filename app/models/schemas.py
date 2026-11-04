@@ -179,7 +179,3 @@ class RankingRow(BaseModel):
 class RankingOut(BaseModel):
     classroom: ClassroomOut
     rows: list[RankingRow]
-
-
-class MessageOut(BaseModel):
-    detail: Optional[str] = None
