@@ -75,6 +75,7 @@ class PhotoService:
         self._trash = None
 
     def warmup(self) -> None:
+        """Create upload dirs and load local models."""
         UPLOADS.mkdir(parents=True, exist_ok=True)
         self._load_mira()
         self._load_trash()
