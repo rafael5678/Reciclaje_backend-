@@ -461,7 +461,7 @@ def region_stats(array: np.ndarray, box: dict) -> dict | None:
 
 
 def find_stick_box(array: np.ndarray) -> dict | None:
-    """Busca un trazo fino vertical u horizontal: lapicero, lápiz, pluma."""
+    """Find a thin vertical or horizontal stroke: pen or pencil."""
     height, width = array.shape[:2]
     gray = array.mean(axis=2)
     vertical = _band_box(gray, axis=0, length=width, other=height)
