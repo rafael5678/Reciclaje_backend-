@@ -4,6 +4,7 @@ from app.models.catalog import BY_CODE
 
 class Score:
     def award(self, material_code: str, confidence: float, separated_well: bool) -> tuple[int, list[str]]:
+        """Compute points and the reasons shown in the UI."""
         material = BY_CODE.get(material_code) or BY_CODE["GEN"]
         points = 8
         why = ["8 por identificar el objeto"]
