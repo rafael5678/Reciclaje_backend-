@@ -1,4 +1,4 @@
-"""Puntos segun material, certeza y separacion."""
+"""Points from material, confidence, and sorting."""
 from app.models.catalog import BY_CODE
 
 
