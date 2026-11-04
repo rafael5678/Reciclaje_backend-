@@ -98,6 +98,7 @@ class ClassroomService:
         return InviteOut(code=live_code(row), expires_in=_expires_in(), period=INVITE_PERIOD)
 
     def join(self, user: dict, code: str) -> ClassroomOut:
+        """Join a classroom with a live or previous code."""
         self._require_account(user)
         needle = code.strip().upper()
         window = _window()
