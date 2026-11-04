@@ -17,6 +17,7 @@ scan_repository = ScanRepository()
 
 class ScanService:
     def list_for(self, user_id: int) -> list[ScanOut]:
+        """List scans or classrooms for a user."""
         return [present_scan(row) for row in scan_repository.list_by_user(user_id)]
 
     def create(
