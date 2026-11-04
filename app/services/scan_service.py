@@ -1,3 +1,4 @@
+"""Crea y lista escaneos, con foto JPEG opcional."""
 from datetime import datetime
 from io import BytesIO
 
