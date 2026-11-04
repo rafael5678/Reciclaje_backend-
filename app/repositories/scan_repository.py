@@ -68,6 +68,7 @@ class ScanRepository:
             conn.close()
 
     def move(self, from_user: int, to_user: int) -> int:
+        """Reassign scans from one user to another."""
         conn = get_conn()
         try:
             cursor = conn.execute("UPDATE scans SET user_id = ? WHERE user_id = ?", (to_user, from_user))
