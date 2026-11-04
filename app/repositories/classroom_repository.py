@@ -102,6 +102,7 @@ class ClassroomRepository:
             conn.close()
 
     def delete(self, classroom_id: int) -> None:
+        """Delete a row and related memberships."""
         conn = get_conn()
         try:
             conn.execute("DELETE FROM classroom_members WHERE classroom_id = ?", (classroom_id,))
