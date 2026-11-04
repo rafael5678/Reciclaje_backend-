@@ -51,7 +51,7 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
     traceback.print_exc()
     return JSONResponse(
         status_code=500,
-        content={"detail": f"Error del servidor: {str(exc)}"},
+        content={"detail": "Error del servidor"},
         headers={
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "*",
