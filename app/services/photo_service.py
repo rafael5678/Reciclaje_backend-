@@ -131,6 +131,7 @@ class PhotoService:
         return path
 
     def _load_mira(self):
+        """Load the MIRA ONNX session."""
         if self._session is not None:
             return self._session
         if not MIRA_PATH.exists():
