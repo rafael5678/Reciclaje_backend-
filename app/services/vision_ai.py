@@ -106,6 +106,7 @@ class _Budget:
             return True
 
     def used(self) -> int:
+        """How many Gemini calls ran in the last minute."""
         with self._lock:
             self._trim(time.time())
             return len(self._calls)
