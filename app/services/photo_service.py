@@ -174,6 +174,7 @@ class PhotoService:
         }
 
     def _classify_trash(self, array: np.ndarray, box: dict) -> dict | None:
+        """Run TrashNet on a crop."""
         model = self._load_trash()
         if model is None:
             return None
