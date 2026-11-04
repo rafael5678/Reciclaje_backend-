@@ -122,6 +122,7 @@ class _Budget:
             return self._cool.get(model, 0) <= time.time()
 
     def cooling_until(self, model: str) -> float | None:
+        """When a cooled model may be retried."""
         with self._lock:
             until = self._cool.get(model, 0)
         return until if until > time.time() else None
