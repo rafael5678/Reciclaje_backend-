@@ -1,4 +1,4 @@
-"""Textos de qué hacer con el objeto. Gemini los escribe; si no, usamos estos."""
+"""What-to-do copy for an object. Gemini writes it; otherwise these fallbacks."""
 
 from app.models.catalog import BY_CODE
 
