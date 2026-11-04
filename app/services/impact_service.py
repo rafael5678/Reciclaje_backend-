@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from app.models.catalog import CATEGORY_COLORS, CATEGORY_ORDER
 from app.models.schemas import CategoryCount, DayCount, ImpactOut
 from app.repositories.scan_repository import ScanRepository
-from app.services.scan_service import present_scan
+from app.services.scan_presenter import present_scan
 
 scan_repository = ScanRepository()
 WEEKDAYS = ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"]

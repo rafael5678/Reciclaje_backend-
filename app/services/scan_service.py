@@ -7,39 +7,11 @@ from PIL import Image
 from app.models.schemas import ScanOut
 from app.repositories.material_repository import MaterialRepository
 from app.repositories.scan_repository import ScanRepository
+from app.services.scan_presenter import present_scan
 from app.services.score import award_points
 
 material_repository = MaterialRepository()
 scan_repository = ScanRepository()
-
-
-def present_scan(row: dict) -> ScanOut:
-    material = material_repository.get(row["material_code"])
-    if material is None:
-        raise HTTPException(status_code=500, detail="Material desconocido en el historial")
-    return ScanOut(
-        id=row["id"],
-        material_code=material["code"],
-        material_name=material["name"],
-        full_name=material["full_name"],
-        category=material["category"],
-        object_name=row["object_name"],
-        confidence=float(row["confidence"]),
-        container=material["container"],
-        container_detail=material["container_detail"],
-        tone=material["tone"],
-        steps=material["steps"],
-        primary_action=material["primary_action"],
-        points=int(row["points"]),
-        weight_kg=float(row["weight_kg"]),
-        co2_kg=float(row["co2_kg"]),
-        created_at=_as_text(row["created_at"]),
-        separated_well=bool(row["separated_well"]),
-        accent=material["accent"],
-        warning=material["warning"],
-        recyclable=material["recyclable"],
-        has_photo=bool(row.get("has_photo")),
-    )
 
 
 class ScanService:
@@ -76,12 +48,6 @@ class ScanService:
 
     def photo_for(self, user_id: int, scan_id: int) -> bytes | None:
         return scan_repository.photo_for(user_id, scan_id)
-
-
-def _as_text(value) -> str:
-    if isinstance(value, datetime):
-        return value.isoformat()
-    return str(value)
 
 
 def _jpeg(raw: bytes) -> bytes | None:
