@@ -81,6 +81,7 @@ class PhotoService:
         self._load_trash()
 
     def analyze(self, image: Image.Image) -> dict:
+        """Classify a photo with Gemini, then local models."""
         started = time.perf_counter()
         rgb = image.convert("RGB")
         from app.services.vision_ai import classify as classify_gemini
