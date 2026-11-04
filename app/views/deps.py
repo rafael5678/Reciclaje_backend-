@@ -1,3 +1,4 @@
+"""Dependencia de usuario autenticado por Bearer."""
 from fastapi import Depends, Header, HTTPException
 
 from app.services.auth_service import auth_service
