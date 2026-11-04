@@ -13,6 +13,7 @@ class UserRepository:
             conn.close()
 
     def get_by_email(self, email: str) -> dict | None:
+        """Fetch a user by email."""
         conn = get_conn()
         try:
             row = conn.execute(
