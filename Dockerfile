@@ -9,6 +9,7 @@ RUN apt-get update \
 # Install Python dependencies first for better layer caching.
     && rm -rf /var/lib/apt/lists/*
 
+# Application package and local vision models.
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
