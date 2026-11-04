@@ -14,6 +14,7 @@ class EnvLoader:
         self.paths = paths or (ROOT / ".env", APP_DIR / ".env")
 
     def load(self) -> None:
+        """Load key=value pairs from .env files."""
         for path in self.paths:
             if not path.exists():
                 continue
