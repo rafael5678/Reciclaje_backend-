@@ -1,3 +1,4 @@
+"""Ruta del impacto acumulado del usuario."""
 from fastapi import APIRouter
 
 from app.models.schemas import ImpactOut
