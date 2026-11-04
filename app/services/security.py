@@ -14,6 +14,7 @@ class Security:
         self.secret = secret
 
     def hash_password(self, password: str, salt: bytes | None = None) -> str:
+        """Hash a password with PBKDF2."""
         salt = salt or secrets.token_bytes(16)
         digest = hashlib.pbkdf2_hmac("sha256", password.encode(), salt, 120_000)
         return f"{salt.hex()}${digest.hex()}"
