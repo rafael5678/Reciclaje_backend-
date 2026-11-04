@@ -154,6 +154,7 @@ class ClassroomService:
         return row
 
     def _require_account(self, user: dict) -> None:
+        """Reject guests from classroom writes."""
         if is_guest(user):
             raise HTTPException(status_code=403, detail="Crea tu cuenta para crear o unirte a un salón")
 
