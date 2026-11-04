@@ -201,6 +201,7 @@ class PhotoService:
         return {"label": label, "confidence": clamp(float(scores[best]), 0.0, 0.99), "scores": table}
 
     def _lock_object(self, array: np.ndarray, box: dict) -> dict | None:
+        """Heuristic lock of the main object."""
         stats = region_stats(array, box)
         if not stats:
             return None
