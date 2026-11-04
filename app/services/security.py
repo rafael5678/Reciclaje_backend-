@@ -29,6 +29,7 @@ class Security:
         return hmac.compare_digest(candidate, f"{salt_hex}${digest_hex}")
 
     def make_token(self, user_id: int) -> str:
+        """Build a signed session token."""
         expires = int(time.time()) + TOKEN_TTL
         payload = f"{user_id}.{expires}"
         signature = hmac.new(self.secret, payload.encode(), hashlib.sha256).hexdigest()
