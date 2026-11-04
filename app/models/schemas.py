@@ -1,4 +1,4 @@
-"""Contratos Pydantic de la API."""
+"""Pydantic contracts for the API."""
 from typing import Optional
 
 from pydantic import BaseModel, Field
