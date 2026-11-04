@@ -93,6 +93,7 @@ class ClassroomService:
         raise HTTPException(status_code=500, detail="No pude generar un código. Intenta otra vez")
 
     def invite(self, user: dict, classroom_id: int) -> InviteOut:
+        """Return the live rotating invite code."""
         row = self._member_room(user, classroom_id)
         return InviteOut(code=live_code(row), expires_in=_expires_in(), period=INVITE_PERIOD)
 
