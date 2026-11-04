@@ -131,6 +131,7 @@ class Database:
         self.raw.commit()
 
     def close(self) -> None:
+        """Close the connection."""
         self.raw.close()
 
 
