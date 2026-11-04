@@ -1,4 +1,4 @@
-"""Análisis de fotos con MIRA, TrashNet y reglas de forma/color."""
+"""Photo analysis with MIRA, TrashNet, and shape/color rules."""
 
 from __future__ import annotations
 
