@@ -40,6 +40,7 @@ class ClassroomRepository:
             conn.close()
 
     def by_code(self, code: str) -> dict | None:
+        """Find a classroom by stored invite seed."""
         conn = get_conn()
         try:
             row = conn.execute("SELECT id, name, code, owner_id FROM classrooms WHERE code = ?", (code,)).fetchone()
