@@ -77,6 +77,7 @@ class ClassroomRepository:
             conn.close()
 
     def is_member(self, classroom_id: int, user_id: int) -> bool:
+        """Whether the user is in the classroom."""
         conn = get_conn()
         try:
             row = conn.execute(
