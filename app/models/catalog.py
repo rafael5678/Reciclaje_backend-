@@ -1,4 +1,4 @@
-﻿"""Catálogo de materiales. La guía y el historial salen de aquí."""
+﻿"""Material catalog. Guide copy and history come from here."""
 
 MATERIALS: list[dict] = [
     {
