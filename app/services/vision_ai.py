@@ -117,6 +117,7 @@ class _Budget:
             self._cool[model] = time.time() + seconds
 
     def available(self, model: str) -> bool:
+        """Whether a model can be called now."""
         with self._lock:
             return self._cool.get(model, 0) <= time.time()
 
