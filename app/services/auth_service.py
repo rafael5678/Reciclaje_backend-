@@ -57,6 +57,7 @@ class AuthService:
         return user_repository.get_by_id(user_id)
 
     def _claim_guest(self, guest_token: str | None, owner_id: int) -> int:
+        """Move guest scans onto the real account."""
         if not guest_token:
             return 0
         guest = self.user_from_token(guest_token)
