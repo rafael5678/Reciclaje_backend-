@@ -5,7 +5,7 @@ from app.models.schemas import ImpactOut
 from app.services.impact_service import impact_service
 from app.views.deps import CurrentUser
 
-router = APIRouter(tags=["impacto"])
+router = APIRouter(tags=["impact"])
 
 
 @router.get("/impact", response_model=ImpactOut)
