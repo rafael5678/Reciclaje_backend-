@@ -89,6 +89,7 @@ class ClassroomRepository:
             conn.close()
 
     def add_member(self, classroom_id: int, user_id: int, joined_at: str) -> None:
+        """Add a member to a classroom."""
         conn = get_conn()
         try:
             conn.execute(
