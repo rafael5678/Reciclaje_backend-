@@ -112,6 +112,7 @@ class _Budget:
             return len(self._calls)
 
     def cool(self, model: str, seconds: float) -> None:
+        """Mark a model as cooling down after 429."""
         with self._lock:
             self._cool[model] = time.time() + seconds
 
