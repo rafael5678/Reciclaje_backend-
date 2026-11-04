@@ -1,4 +1,4 @@
-"""Conexión a Postgres (Supabase) o SQLite local, y creación del esquema."""
+"""Postgres (Supabase) or local SQLite connection, and schema setup."""
 
 import os
 import sqlite3
