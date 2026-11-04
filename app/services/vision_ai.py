@@ -133,6 +133,7 @@ class _Budget:
             self._last = {"model": model, "ok": ok, "detail": detail[:160], "at": int(time.time())}
 
     def last(self) -> dict:
+        """Return the last Gemini call metadata."""
         with self._lock:
             return dict(self._last)
 
