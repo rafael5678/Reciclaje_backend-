@@ -8,4 +8,5 @@ class MaterialRepository:
         return MATERIALS
 
     def get(self, code: str) -> dict | None:
+        """Fetch one row by id or code."""
         return BY_CODE.get(code.upper())
