@@ -120,6 +120,7 @@ class ClassroomRepository:
             conn.close()
 
     def ranking(self, classroom_id: int, week_start: str) -> list[dict]:
+        """Return ranking rows for a classroom."""
         conn = get_conn()
         try:
             param_start = datetime.fromisoformat(week_start) if conn.postgres else week_start
