@@ -49,6 +49,7 @@ class ScanService:
         return present_scan(row)
 
     def photo_for(self, user_id: int, scan_id: int) -> bytes | None:
+        """Return the JPEG bytes for a scan the user owns."""
         return scan_repository.photo_for(user_id, scan_id)
 
 
