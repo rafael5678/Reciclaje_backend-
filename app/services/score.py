@@ -1,3 +1,4 @@
+"""Puntos segun material, certeza y separacion."""
 from app.models.catalog import BY_CODE
 
 
