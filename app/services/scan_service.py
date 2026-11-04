@@ -1,4 +1,4 @@
-"""Crea y lista escaneos, con foto JPEG opcional."""
+"""Create and list scans, with an optional JPEG."""
 from datetime import datetime
 from io import BytesIO
 
