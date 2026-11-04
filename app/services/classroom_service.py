@@ -1,6 +1,5 @@
 import hashlib
 import hmac
-import os
 import secrets
 import time
 from datetime import datetime, timedelta
@@ -10,6 +9,7 @@ from fastapi import HTTPException
 from app.models.schemas import ClassroomOut, InviteOut, RankingOut, RankingRow
 from app.repositories.classroom_repository import ClassroomRepository
 from app.services.auth_service import is_guest
+from app.services.security import SECRET
 
 classroom_repository = ClassroomRepository()
 CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
@@ -21,17 +21,13 @@ def _now() -> str:
     return datetime.now().astimezone().isoformat(timespec="seconds")
 
 
-def _secret() -> bytes:
-    return (os.environ.get("ECOSCAN_SECRET") or "ecoscan").encode("utf-8")
-
-
 def _window(now: float | None = None) -> int:
     return int((now if now is not None else time.time()) // INVITE_PERIOD)
 
 
 def live_code(row: dict, window: int | None = None) -> str:
     stamp = window if window is not None else _window()
-    digest = hmac.new(_secret(), f"{row['id']}|{row['code']}|{stamp}".encode("utf-8"), hashlib.sha256).hexdigest()
+    digest = hmac.new(SECRET, f"{row['id']}|{row['code']}|{stamp}".encode("utf-8"), hashlib.sha256).hexdigest()
     return "".join(CODE_ALPHABET[int(digest[index : index + 2], 16) % len(CODE_ALPHABET)] for index in range(0, 12, 2))
 
 
