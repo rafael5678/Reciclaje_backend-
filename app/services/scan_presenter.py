@@ -11,6 +11,7 @@ material_repository = MaterialRepository()
 
 class ScanPresenter:
     def present(self, row: dict) -> ScanOut:
+        """Map a database scan row to ScanOut."""
         material = material_repository.get(row["material_code"])
         if material is None:
             raise HTTPException(status_code=500, detail="Material desconocido en el historial")
