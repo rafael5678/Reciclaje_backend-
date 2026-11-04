@@ -17,6 +17,7 @@ class MaterialService:
         return self._repository.get(code)
 
     def require(self, code: str) -> dict:
+        """Return a material or raise 404."""
         material = self.get(code)
         if material is None:
             raise HTTPException(status_code=404, detail="Material no encontrado")
