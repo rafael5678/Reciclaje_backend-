@@ -1,3 +1,4 @@
+"""Rutas de registro, login, invitado y perfil."""
 from fastapi import APIRouter, Header
 
 from app.models.schemas import LoginIn, RegisterIn, TokenOut, UserOut
