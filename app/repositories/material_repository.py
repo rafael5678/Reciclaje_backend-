@@ -1,3 +1,4 @@
+"""Lectura del catalogo en memoria."""
 from app.models.catalog import BY_CODE, MATERIALS
 
 
