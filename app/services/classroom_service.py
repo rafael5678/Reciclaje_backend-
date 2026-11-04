@@ -1,3 +1,4 @@
+"""Salones, codigo rotativo HMAC y arboles del ranking."""
 import hashlib
 import hmac
 import secrets
