@@ -10,7 +10,7 @@ from app.services.photo_service import photo_service
 from app.services.scan_service import scan_service
 from app.views.deps import CurrentUser
 
-router = APIRouter(tags=["escaneos"])
+router = APIRouter(tags=["scans"])
 
 
 @router.get("/scans", response_model=list[ScanOut])
