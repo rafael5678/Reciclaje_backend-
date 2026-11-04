@@ -109,6 +109,7 @@ class Database:
         self.postgres = postgres
 
     def execute(self, sql: str, params: tuple = ()):
+        """Run one SQL statement."""
         sql = sql.replace("?", "%s") if self.postgres else sql
         if self.postgres:
             cursor = self.raw.cursor()
