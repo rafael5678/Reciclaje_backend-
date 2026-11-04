@@ -73,13 +73,11 @@ class PhotoService:
     def __init__(self) -> None:
         self._session = None
         self._trash = None
-        self._ready = False
 
     def warmup(self) -> None:
         UPLOADS.mkdir(parents=True, exist_ok=True)
         self._load_mira()
         self._load_trash()
-        self._ready = True
 
     def analyze(self, image: Image.Image) -> dict:
         started = time.perf_counter()
