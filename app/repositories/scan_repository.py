@@ -78,6 +78,7 @@ class ScanRepository:
             conn.close()
 
     def photo_for(self, user_id: int, scan_id: int) -> bytes | None:
+        """Return the JPEG bytes for a scan the user owns."""
         conn = get_conn()
         try:
             row = conn.execute(
