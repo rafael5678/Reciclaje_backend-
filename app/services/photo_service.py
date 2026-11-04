@@ -109,6 +109,7 @@ class PhotoService:
         return _with_points(attach_guide(hit))
 
     def _lock_thin_object(self, array: np.ndarray) -> dict | None:
+        """Detect a thin pen-like object."""
         box = find_stick_box(array)
         if not box:
             return None
