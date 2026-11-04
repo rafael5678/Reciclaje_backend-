@@ -4,6 +4,7 @@ from app.database import get_conn
 
 class UserRepository:
     def get_by_id(self, user_id: int) -> dict | None:
+        """Fetch a user by id."""
         conn = get_conn()
         try:
             row = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
