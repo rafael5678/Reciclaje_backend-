@@ -1,1 +1,1 @@
-"""Reglas de negocio: auth, visión, puntaje, impacto y salones."""
+"""Business rules: auth, vision, scoring, impact, and classrooms."""
