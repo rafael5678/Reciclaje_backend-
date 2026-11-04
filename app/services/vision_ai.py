@@ -92,6 +92,7 @@ class _Budget:
         self._last: dict = {}
 
     def _trim(self, now: float) -> None:
+        """Drop budget events older than one minute."""
         while self._calls and now - self._calls[0] >= 60:
             self._calls.popleft()
 
