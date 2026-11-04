@@ -151,6 +151,7 @@ class PhotoService:
         return self._trash
 
     def _detect_mira(self, image: Image.Image) -> dict | None:
+        """Run MIRA on the image."""
         session = self._load_mira()
         if session is None:
             return None
