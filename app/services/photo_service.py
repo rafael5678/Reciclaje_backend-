@@ -121,6 +121,7 @@ class PhotoService:
         return make_hit("GEN", name, 0.9, box)
 
     def save_upload(self, raw: bytes, filename: str, owner: str) -> Path:
+        """Persist an uploaded file for debugging."""
         UPLOADS.mkdir(parents=True, exist_ok=True)
         stamp = str(int(time.time() * 1000))
         safe = "".join(ch for ch in Path(filename).name if ch.isalnum() or ch in ".-_")[:80] or "foto.jpg"
