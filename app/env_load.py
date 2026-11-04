@@ -1,4 +1,4 @@
-"""Carga GEMINI_API_KEY desde .env sin dependencias extra."""
+"""Load GEMINI_API_KEY from .env without extra dependencies."""
 
 from __future__ import annotations
 
