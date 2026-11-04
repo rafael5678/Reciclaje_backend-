@@ -16,6 +16,7 @@ def _parse(value: str) -> datetime:
 
 class ImpactService:
     def for_user(self, user_id: int) -> ImpactOut:
+        """List classrooms a user belongs to."""
         rows = scan_repository.list_by_user(user_id)
         scans = [present_scan(row) for row in rows]
         now = datetime.now().astimezone()
