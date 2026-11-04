@@ -2,14 +2,6 @@ from app.database import get_conn
 
 
 class UserRepository:
-    def count(self) -> int:
-        conn = get_conn()
-        try:
-            row = conn.execute("SELECT COUNT(*) AS n FROM users").fetchone()
-            return int(row["n"])
-        finally:
-            conn.close()
-
     def get_by_id(self, user_id: int) -> dict | None:
         conn = get_conn()
         try:
