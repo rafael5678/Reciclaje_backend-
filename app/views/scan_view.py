@@ -1,4 +1,4 @@
-"""Rutas de analisis de foto, historial y descarga."""
+"""Photo analysis, history, and download routes."""
 from io import BytesIO
 
 from fastapi import APIRouter, File, HTTPException, Request, UploadFile
