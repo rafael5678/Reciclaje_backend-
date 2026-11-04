@@ -74,6 +74,9 @@ class ScanService:
         )
         return present_scan(row)
 
+    def photo_for(self, user_id: int, scan_id: int) -> bytes | None:
+        return scan_repository.photo_for(user_id, scan_id)
+
 
 def _as_text(value) -> str:
     if isinstance(value, datetime):

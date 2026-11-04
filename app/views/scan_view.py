@@ -5,12 +5,9 @@ from fastapi.responses import Response
 from PIL import Image, UnidentifiedImageError
 
 from app.models.schemas import AnalyzeOut, ScanIn, ScanOut
-from app.repositories.scan_repository import ScanRepository
 from app.services.photo_service import photo_service
 from app.services.scan_service import scan_service
 from app.views.deps import CurrentUser
-
-scan_repository = ScanRepository()
 
 router = APIRouter(tags=["escaneos"])
 
@@ -64,7 +61,7 @@ async def create_scan(request: Request, user: dict = CurrentUser) -> ScanOut:
 
 @router.get("/scans/{scan_id}/photo")
 def scan_photo(scan_id: int, user: dict = CurrentUser) -> Response:
-    raw = scan_repository.photo_for(user["id"], scan_id)
+    raw = scan_service.photo_for(user["id"], scan_id)
     if not raw:
         raise HTTPException(status_code=404, detail="Esta foto ya no está guardada")
     return Response(content=raw, media_type="image/jpeg")
