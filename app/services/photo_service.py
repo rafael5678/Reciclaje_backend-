@@ -221,6 +221,7 @@ class PhotoService:
         return None
 
     def _fuse(self, mira: dict | None, trash: dict | None, lock: dict | None, box: dict) -> dict:
+        """Fuse Gemini/local scores into one label."""
         if lock and lock["object_name"] in {"Lápiz", "Lapicero", "Celular", "Botella plástica PET", "Restos orgánicos", "Hoja de papel"}:
             return lock
         if lock and lock.get("material_code") == "PAP" and lock["object_name"] == "Caja de cartón":
