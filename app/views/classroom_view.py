@@ -1,3 +1,4 @@
+"""Rutas de salones, invitacion y ranking."""
 from fastapi import APIRouter, Response
 
 from app.models.schemas import ClassroomIn, ClassroomOut, InviteOut, JoinIn, RankingOut
