@@ -1,1 +1,1 @@
-"""API EcoScan: vistas, servicios y repositorios."""
+"""EcoScan API: views, services, and repositories."""
