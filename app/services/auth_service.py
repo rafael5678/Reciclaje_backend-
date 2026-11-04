@@ -50,6 +50,7 @@ class AuthService:
         return self._session(user)
 
     def user_from_token(self, token: str) -> dict | None:
+        """Resolve the user for a bearer token."""
         user_id = read_token(token)
         if user_id is None:
             return None
