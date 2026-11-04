@@ -13,6 +13,7 @@ class MaterialService:
         return self._repository.list_all()
 
     def get(self, code: str) -> dict | None:
+        """Fetch one row by id or code."""
         return self._repository.get(code)
 
     def require(self, code: str) -> dict:
