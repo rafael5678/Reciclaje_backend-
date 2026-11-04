@@ -68,6 +68,7 @@ class AuthService:
         return moved
 
     def _session(self, user: dict, moved: int = 0) -> dict:
+        """Build the token payload for the client."""
         return {"token": make_token(user["id"]), "user": public_user(user), "moved_scans": moved}
 
 
