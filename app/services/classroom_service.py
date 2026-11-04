@@ -80,6 +80,7 @@ class ClassroomService:
         return [_present(row, user["id"]) for row in classroom_repository.for_user(user["id"])]
 
     def create(self, user: dict, name: str) -> ClassroomOut:
+        """Insert a new row and return it."""
         self._require_account(user)
         if len(classroom_repository.for_user(user["id"])) >= MAX_CLASSROOMS:
             raise HTTPException(status_code=400, detail=f"Puedes estar en máximo {MAX_CLASSROOMS} salones")
