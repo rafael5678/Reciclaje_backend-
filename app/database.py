@@ -127,6 +127,7 @@ class Database:
         self.raw.executemany(sql, rows)
 
     def commit(self) -> None:
+        """Commit the current transaction."""
         self.raw.commit()
 
     def close(self) -> None:
