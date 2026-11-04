@@ -119,6 +119,7 @@ class ClassroomService:
             classroom_repository.delete(row["id"])
 
     def ranking(self, user: dict, classroom_id: int) -> RankingOut:
+        """Return ranking rows for a classroom."""
         row = self._member_room(user, classroom_id)
         today = datetime.now().astimezone().replace(hour=0, minute=0, second=0, microsecond=0)
         week_start = (today - timedelta(days=6)).isoformat(timespec="seconds")
