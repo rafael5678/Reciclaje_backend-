@@ -116,6 +116,7 @@ class ClassroomService:
         return _present(row, user["id"], members=classroom_repository.count_members(row["id"]))
 
     def leave(self, user: dict, classroom_id: int) -> None:
+        """Leave or delete a classroom."""
         row = self._member_room(user, classroom_id)
         classroom_repository.remove_member(row["id"], user["id"])
         if classroom_repository.count_members(row["id"]) == 0:
