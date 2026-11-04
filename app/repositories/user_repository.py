@@ -1,4 +1,4 @@
-"""Tabla users: alta, busqueda y borrado."""
+"""users table: create, lookup, and delete."""
 from app.database import get_conn
 
 
