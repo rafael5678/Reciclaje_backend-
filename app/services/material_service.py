@@ -1,3 +1,4 @@
+"""Servicio del catalogo: lista y busca por codigo."""
 from fastapi import HTTPException
 
 from app.repositories.material_repository import MaterialRepository
