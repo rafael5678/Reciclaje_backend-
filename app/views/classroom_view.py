@@ -5,7 +5,7 @@ from app.models.schemas import ClassroomIn, ClassroomOut, InviteOut, JoinIn, Ran
 from app.services.classroom_service import classroom_service
 from app.views.deps import CurrentUser
 
-router = APIRouter(tags=["salones"])
+router = APIRouter(tags=["classrooms"])
 
 
 @router.get("/classrooms", response_model=list[ClassroomOut])
