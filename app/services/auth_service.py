@@ -1,3 +1,4 @@
+"""Registro, login, invitado y fusion de escaneos."""
 import secrets
 from datetime import datetime
 
