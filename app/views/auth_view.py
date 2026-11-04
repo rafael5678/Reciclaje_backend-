@@ -16,6 +16,7 @@ def register(body: RegisterIn, authorization: str | None = Header(default=None))
 
 @router.post("/auth/login", response_model=TokenOut)
 def login(body: LoginIn, authorization: str | None = Header(default=None)) -> dict:
+    """Authenticate and optional guest merge."""
     return auth_service.login(body.email, body.password, bearer_token(authorization))
 
 
