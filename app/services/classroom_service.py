@@ -147,6 +147,7 @@ class ClassroomService:
         return RankingOut(classroom=_present(row, user["id"], members=len(ranked)), rows=ranked)
 
     def _member_room(self, user: dict, classroom_id: int) -> dict:
+        """Load a classroom the user belongs to."""
         row = classroom_repository.get(classroom_id)
         if row is None or not classroom_repository.is_member(classroom_id, user["id"]):
             raise HTTPException(status_code=404, detail="No perteneces a ese salón")
