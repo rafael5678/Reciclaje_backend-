@@ -49,6 +49,7 @@ class ClassroomRepository:
             conn.close()
 
     def for_user(self, user_id: int) -> list[dict]:
+        """List classrooms a user belongs to."""
         conn = get_conn()
         try:
             rows = conn.execute(
