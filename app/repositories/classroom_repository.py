@@ -21,6 +21,7 @@ class ClassroomRepository:
             conn.close()
 
     def get(self, classroom_id: int) -> dict | None:
+        """Fetch one row by id or code."""
         conn = get_conn()
         try:
             row = conn.execute("SELECT id, name, code, owner_id FROM classrooms WHERE id = ?", (classroom_id,)).fetchone()
