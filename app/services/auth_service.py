@@ -36,6 +36,7 @@ class AuthService:
         return self._session(user, self._claim_guest(guest_token, user["id"]))
 
     def login(self, email: str, password: str, guest_token: str | None = None) -> dict:
+        """Authenticate and optional guest merge."""
         user = user_repository.get_by_email(email)
         if user is None or is_guest(user) or not verify_password(password, user["password_hash"]):
             raise HTTPException(status_code=401, detail="Correo o contraseña incorrectos")
