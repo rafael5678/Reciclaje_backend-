@@ -1,4 +1,4 @@
-"""Arranque que Render reconoce con `python app.py`."""
+"""Entry point Render runs with `python app.py`."""
 
 import os
 
