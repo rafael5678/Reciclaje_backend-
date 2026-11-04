@@ -10,6 +10,7 @@ router = APIRouter(tags=["auth"])
 
 @router.post("/auth/register", response_model=TokenOut)
 def register(body: RegisterIn, authorization: str | None = Header(default=None)) -> dict:
+    """Create an account and optional guest merge."""
     return auth_service.register(body.name, body.email, body.password, bearer_token(authorization))
 
 
