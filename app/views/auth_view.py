@@ -22,6 +22,7 @@ def login(body: LoginIn, authorization: str | None = Header(default=None)) -> di
 
 @router.post("/auth/guest", response_model=TokenOut)
 def guest() -> dict:
+    """Create a guest account."""
     return auth_service.guest()
 
 
