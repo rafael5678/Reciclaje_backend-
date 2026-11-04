@@ -1,3 +1,5 @@
+"""Conexión a Postgres (Supabase) o SQLite local, y creación del esquema."""
+
 import os
 import sqlite3
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
