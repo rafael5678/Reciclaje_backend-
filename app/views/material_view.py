@@ -4,7 +4,7 @@ from fastapi import APIRouter
 from app.models.schemas import MaterialOut
 from app.services.material_service import material_service
 
-router = APIRouter(tags=["materiales"])
+router = APIRouter(tags=["materials"])
 
 
 @router.get("/materials", response_model=list[MaterialOut])
