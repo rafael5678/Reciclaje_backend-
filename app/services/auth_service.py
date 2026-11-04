@@ -1,4 +1,4 @@
-"""Registro, login, invitado y fusion de escaneos."""
+"""Register, login, guest, and guest-scan merge."""
 import secrets
 from datetime import datetime
 
