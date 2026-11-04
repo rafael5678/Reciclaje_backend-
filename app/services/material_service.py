@@ -9,6 +9,7 @@ class MaterialService:
         self._repository = MaterialRepository()
 
     def list_all(self) -> list[dict]:
+        """Return the full catalog."""
         return self._repository.list_all()
 
     def get(self, code: str) -> dict | None:
