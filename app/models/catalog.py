@@ -1,4 +1,4 @@
-"""Catálogo de materiales. La guía y el historial salen de aquí."""
+﻿"""Catálogo de materiales. La guía y el historial salen de aquí."""
 
 MATERIALS: list[dict] = [
     {
@@ -7,7 +7,6 @@ MATERIALS: list[dict] = [
         "full_name": "Polietileno tereftalato",
         "category": "Plástico",
         "object_name": "Botella plástica PET",
-        "examples": ["Botella de agua", "Botella de gaseosa", "Envase de jugo"],
         "container": "Amarillo",
         "container_detail": "Plásticos y envases",
         "steps": ["Enjuagar", "Quitar tapa", "Aplastar"],
@@ -26,7 +25,6 @@ MATERIALS: list[dict] = [
         "full_name": "Polietileno de alta densidad",
         "category": "Plástico",
         "object_name": "Envase HDPE",
-        "examples": ["Envase de champú", "Garrafa de detergente", "Envase de yogurt"],
         "container": "Amarillo",
         "container_detail": "Plásticos y envases",
         "steps": ["Enjuagar", "Quitar tapa"],
@@ -45,7 +43,6 @@ MATERIALS: list[dict] = [
         "full_name": "Cartón multicapa",
         "category": "Plástico",
         "object_name": "Caja multicapa",
-        "examples": ["Caja de leche", "Caja de jugo", "Cartón multicapa"],
         "container": "Amarillo",
         "container_detail": "Plásticos y envases",
         "steps": ["Enjuagar", "Aplastar"],
@@ -64,7 +61,6 @@ MATERIALS: list[dict] = [
         "full_name": "Papel y cartón",
         "category": "Papel y cartón",
         "object_name": "Caja de cartón",
-        "examples": ["Caja de cartón", "Caja de cereal", "Cartón de huevos", "Hoja de papel"],
         "container": "Azul",
         "container_detail": "Papel y cartón",
         "steps": ["Aplastar", "Sin grasa"],
@@ -83,7 +79,6 @@ MATERIALS: list[dict] = [
         "full_name": "Vidrio de envase",
         "category": "Vidrio",
         "object_name": "Frasco de vidrio",
-        "examples": ["Frasco de vidrio", "Botella de vidrio", "Tarro de mermelada"],
         "container": "Verde",
         "container_detail": "Vidrio",
         "steps": ["Enjuagar", "Sin tapa"],
@@ -102,7 +97,6 @@ MATERIALS: list[dict] = [
         "full_name": "Metal de envase",
         "category": "Metal",
         "object_name": "Lata de metal",
-        "examples": ["Lata de atún", "Lata de gaseosa", "Lata de conservas"],
         "container": "Gris",
         "container_detail": "Metales",
         "steps": ["Enjuagar", "Aplastar"],
@@ -121,7 +115,6 @@ MATERIALS: list[dict] = [
         "full_name": "Residuo orgánico",
         "category": "Orgánico",
         "object_name": "Restos orgánicos",
-        "examples": ["Cáscara de banano", "Restos de fruta", "Cáscara de huevo"],
         "container": "Marrón",
         "container_detail": "Orgánicos",
         "steps": ["Sin empaque", "Compostable"],
@@ -140,7 +133,6 @@ MATERIALS: list[dict] = [
         "full_name": "Residuo no reciclable",
         "category": "General",
         "object_name": "Residuo general",
-        "examples": ["Servilleta con grasa", "Bolsa de snack", "Papel higiénico", "Envoltura metalizada"],
         "container": "Negro",
         "container_detail": "No se recicla",
         "steps": ["No mezclar", "Bolsa aparte"],
