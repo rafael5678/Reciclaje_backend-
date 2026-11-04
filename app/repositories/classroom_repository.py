@@ -5,6 +5,7 @@ from app.database import get_conn
 
 class ClassroomRepository:
     def create(self, name: str, code: str, owner_id: int, created_at: str) -> dict:
+        """Insert a new row and return it."""
         conn = get_conn()
         try:
             row = conn.execute(
