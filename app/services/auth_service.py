@@ -23,6 +23,7 @@ def public_user(user: dict) -> dict:
 
 class AuthService:
     def register(self, name: str, email: str, password: str, guest_token: str | None = None) -> dict:
+        """Create an account and optional guest merge."""
         email = email.lower().strip()
         if "@" not in email or "." not in email.split("@")[-1]:
             raise HTTPException(status_code=400, detail="Escribe un correo válido")
