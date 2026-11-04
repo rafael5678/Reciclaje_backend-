@@ -68,6 +68,7 @@ class ClassroomRepository:
             conn.close()
 
     def count_members(self, classroom_id: int) -> int:
+        """Count members in a classroom."""
         conn = get_conn()
         try:
             row = conn.execute("SELECT COUNT(*) AS n FROM classroom_members WHERE classroom_id = ?", (classroom_id,)).fetchone()
