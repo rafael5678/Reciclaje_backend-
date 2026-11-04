@@ -142,6 +142,7 @@ class PhotoService:
         return self._session
 
     def _load_trash(self):
+        """Load the TrashNet JSON weights."""
         if self._trash is not None:
             return self._trash
         if not TRASH_PATH.exists():
