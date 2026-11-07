@@ -128,9 +128,11 @@ class ClassroomRepository:
                 """
                 SELECT u.id AS user_id, u.name,
                        COUNT(s.id) AS scans,
-                       COALESCE(SUM(s.points), 0) AS points,
+                       COALESCE(SUM(s.points), 0) AS scan_points,
                        COALESCE(SUM(s.co2_kg), 0) AS co2_kg,
-                       COALESCE(SUM(CASE WHEN s.created_at >= ? THEN s.points ELSE 0 END), 0) AS week_points,
+                       COALESCE(SUM(CASE WHEN s.created_at >= ? THEN s.points ELSE 0 END), 0) AS week_scan_points,
+                       COALESCE((SELECT SUM(a.delta) FROM lab_attempts a WHERE a.user_id = u.id), 0) AS lab_delta,
+                       COALESCE((SELECT SUM(a.delta) FROM lab_attempts a WHERE a.user_id = u.id AND a.created_at >= ?), 0) AS lab_week,
                        (
                          SELECT s2.material_code FROM scans s2
                          WHERE s2.user_id = u.id
@@ -143,9 +145,9 @@ class ClassroomRepository:
                 LEFT JOIN scans s ON s.user_id = u.id
                 WHERE m.classroom_id = ?
                 GROUP BY u.id, u.name
-                ORDER BY points DESC, scans DESC, u.name
+                ORDER BY scan_points DESC, scans DESC, u.name
                 """,
-                (param_start, classroom_id),
+                (param_start, param_start, classroom_id),
             ).fetchall()
             return [dict(row) for row in rows]
         finally:

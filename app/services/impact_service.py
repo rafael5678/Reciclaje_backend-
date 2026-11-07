@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 from app.models.catalog import CATEGORY_COLORS, CATEGORY_ORDER
 from app.models.schemas import CategoryCount, DayCount, ImpactOut
+from app.repositories.lab_repository import lab_repository
 from app.repositories.scan_repository import ScanRepository
 from app.services.scan_presenter import present_scan
 
@@ -37,7 +38,11 @@ class ImpactService:
         ]
         total = len(scans)
         well = sum(1 for scan in scans if scan.separated_well)
-        points = sum(scan.points for scan in scans)
+        try:
+            lab_penalty = lab_repository.delta_for(user_id)
+        except Exception:
+            lab_penalty = 0
+        points = max(0, sum(scan.points for scan in scans) + lab_penalty)
         weight = round(sum(scan.weight_kg for scan in scans), 2)
         co2 = round(sum(scan.co2_kg for scan in scans), 2)
         week_change = _change(len(week), len(prev))
@@ -68,6 +73,7 @@ class ImpactService:
             weekly=weekly,
             categories=categories,
             recent=scans[:8],
+            lab_penalty=lab_penalty,
         )
 
 

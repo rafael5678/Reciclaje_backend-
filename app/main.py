@@ -10,7 +10,7 @@ from app.database import init_db
 from app.env_load import load_env
 from app.services.photo_service import photo_service
 from app.services.vision_ai import status as gemini_status
-from app.views import auth_view, classroom_view, impact_view, material_view, scan_view
+from app.views import auth_view, classroom_view, impact_view, lab_view, material_view, scan_view
 
 load_env()
 
@@ -44,6 +44,7 @@ app.include_router(material_view.router, prefix="/api")
 app.include_router(scan_view.router, prefix="/api")
 app.include_router(impact_view.router, prefix="/api")
 app.include_router(classroom_view.router, prefix="/api")
+app.include_router(lab_view.router, prefix="/api")
 
 
 @app.exception_handler(Exception)

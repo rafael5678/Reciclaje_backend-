@@ -53,6 +53,19 @@ CREATE TABLE IF NOT EXISTS classroom_members (
 );
 
 CREATE INDEX IF NOT EXISTS idx_members_user ON classroom_members(user_id);
+
+CREATE TABLE IF NOT EXISTS lab_attempts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    piece_id TEXT NOT NULL,
+    bin_id TEXT NOT NULL,
+    correct INTEGER NOT NULL,
+    delta INTEGER NOT NULL,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_lab_attempts_user ON lab_attempts(user_id, created_at);
 """
 
 POSTGRES_STATEMENTS = [
@@ -100,6 +113,18 @@ POSTGRES_STATEMENTS = [
     )
     """,
     "CREATE INDEX IF NOT EXISTS idx_members_user ON classroom_members (user_id)",
+    """
+    CREATE TABLE IF NOT EXISTS lab_attempts (
+        id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+        user_id bigint NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        piece_id text NOT NULL,
+        bin_id text NOT NULL,
+        correct boolean NOT NULL,
+        delta integer NOT NULL,
+        created_at timestamptz NOT NULL DEFAULT now()
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS idx_lab_attempts_user ON lab_attempts (user_id, created_at DESC)",
 ]
 
 

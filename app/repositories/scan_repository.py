@@ -77,6 +77,18 @@ class ScanRepository:
         finally:
             conn.close()
 
+    def points_for(self, user_id: int) -> int:
+        """Sum scan points for one user."""
+        conn = get_conn()
+        try:
+            row = conn.execute(
+                "SELECT COALESCE(SUM(points), 0) AS total FROM scans WHERE user_id = ?",
+                (user_id,),
+            ).fetchone()
+            return int(row["total"] if row else 0)
+        finally:
+            conn.close()
+
     def photo_for(self, user_id: int, scan_id: int) -> bytes | None:
         """Return the JPEG bytes for a scan the user owns."""
         conn = get_conn()

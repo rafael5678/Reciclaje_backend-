@@ -105,6 +105,7 @@ class ImpactOut(BaseModel):
     weekly: list[DayCount]
     categories: list[CategoryCount]
     recent: list[ScanOut]
+    lab_penalty: int = 0
 
 
 class ScoreOut(BaseModel):
@@ -142,7 +143,24 @@ class AnalyzeOut(BaseModel):
     points_why: list[str] = Field(default_factory=list)
 
 
+class LabThrowIn(BaseModel):
+    piece_id: str = Field(min_length=2, max_length=40)
+    bin_id: str = Field(min_length=2, max_length=20)
+
+
+class LabThrowOut(BaseModel):
+    correct: bool
+    delta: int
+    points: int
+    lab_penalty: int
+    hint: str
+    piece_title: str
+    bin_title: str
+    expected_bin: str
+
+
 class ClassroomIn(BaseModel):
+
     name: str = Field(min_length=3, max_length=60)
 
 

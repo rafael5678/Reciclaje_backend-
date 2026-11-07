@@ -128,22 +128,42 @@ class ClassroomService:
         today = datetime.now().astimezone().replace(hour=0, minute=0, second=0, microsecond=0)
         week_start = (today - timedelta(days=6)).isoformat(timespec="seconds")
         rows = classroom_repository.ranking(row["id"], week_start)
-        ranked = []
-        for index, item in enumerate(rows):
-            kind, stage = _tree(int(item["points"]), item.get("top_code"))
-            ranked.append(
+        built: list[RankingRow] = []
+        for item in rows:
+            points = max(0, int(item.get("scan_points") or item.get("points") or 0) + int(item.get("lab_delta") or 0))
+            week_points = max(
+                0,
+                int(item.get("week_scan_points") or item.get("week_points") or 0) + int(item.get("lab_week") or 0),
+            )
+            kind, stage = _tree(points, item.get("top_code"))
+            built.append(
                 RankingRow(
-                    position=index + 1,
+                    position=0,
                     name=item["name"],
                     scans=int(item["scans"]),
-                    points=int(item["points"]),
-                    week_points=int(item["week_points"]),
+                    points=points,
+                    week_points=week_points,
                     co2_kg=round(float(item["co2_kg"]), 2),
                     is_me=int(item["user_id"]) == user["id"],
                     tree_kind=kind,
                     tree_stage=stage,
                 )
             )
+        built.sort(key=lambda entry: (-entry.points, -entry.scans, entry.name.lower()))
+        ranked = [
+            RankingRow(
+                position=index + 1,
+                name=entry.name,
+                scans=entry.scans,
+                points=entry.points,
+                week_points=entry.week_points,
+                co2_kg=entry.co2_kg,
+                is_me=entry.is_me,
+                tree_kind=entry.tree_kind,
+                tree_stage=entry.tree_stage,
+            )
+            for index, entry in enumerate(built)
+        ]
         return RankingOut(classroom=_present(row, user["id"], members=len(ranked)), rows=ranked)
 
     def _member_room(self, user: dict, classroom_id: int) -> dict:
