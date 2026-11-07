@@ -7,6 +7,9 @@ import time
 
 SECRET = os.environ.get("ECOSCAN_SECRET", "ecoscan-edge-dev-key").encode()
 TOKEN_TTL = 60 * 60 * 24 * 14
+PASSWORD_ALGORITHM = "PBKDF2-HMAC-SHA256"
+PASSWORD_ROUNDS = 120_000
+PASSWORD_SALT_BYTES = 16
 
 
 class Security:
@@ -14,9 +17,9 @@ class Security:
         self.secret = secret
 
     def hash_password(self, password: str, salt: bytes | None = None) -> str:
-        """Hash a password with PBKDF2."""
-        salt = salt or secrets.token_bytes(16)
-        digest = hashlib.pbkdf2_hmac("sha256", password.encode(), salt, 120_000)
+        """Hash a password with salted PBKDF2. Never store or return the plain password."""
+        salt = salt or secrets.token_bytes(PASSWORD_SALT_BYTES)
+        digest = hashlib.pbkdf2_hmac("sha256", password.encode(), salt, PASSWORD_ROUNDS)
         return f"{salt.hex()}${digest.hex()}"
 
     def verify_password(self, password: str, stored: str) -> bool:

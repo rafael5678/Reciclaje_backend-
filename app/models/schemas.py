@@ -11,6 +11,14 @@ class UserOut(BaseModel):
     guest: bool = False
 
 
+class PasswordStorageOut(BaseModel):
+    algorithm: str
+    iterations: int
+    salt_bytes: int
+    salted: bool
+    returned_to_client: bool
+
+
 class TokenOut(BaseModel):
     token: str
     user: UserOut
