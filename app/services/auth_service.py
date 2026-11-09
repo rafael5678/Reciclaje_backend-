@@ -6,6 +6,7 @@ from fastapi import HTTPException
 
 from app.repositories.scan_repository import ScanRepository
 from app.repositories.user_repository import UserRepository
+from app.services.credentials import credentials
 from app.services.security import hash_password, make_token, read_token, verify_password
 
 user_repository = UserRepository()
@@ -24,9 +25,9 @@ def public_user(user: dict) -> dict:
 class AuthService:
     def register(self, name: str, email: str, password: str, guest_token: str | None = None) -> dict:
         """Create an account and optional guest merge."""
-        email = email.lower().strip()
-        if "@" not in email or "." not in email.split("@")[-1]:
-            raise HTTPException(status_code=400, detail="Escribe un correo válido")
+        name = credentials.name(name)
+        email = credentials.email(email)
+        password = credentials.password(password)
         if email.endswith(GUEST_DOMAIN):
             raise HTTPException(status_code=400, detail="Usa tu propio correo")
         if user_repository.get_by_email(email):
@@ -37,6 +38,8 @@ class AuthService:
 
     def login(self, email: str, password: str, guest_token: str | None = None) -> dict:
         """Authenticate and optional guest merge."""
+        email = credentials.email(email)
+        password = credentials.password(password)
         user = user_repository.get_by_email(email)
         if user is None or is_guest(user) or not verify_password(password, user["password_hash"]):
             raise HTTPException(status_code=401, detail="Correo o contraseña incorrectos")
