@@ -26,5 +26,21 @@ PIECES = [
     {"id": "met-can", "title": "Lata", "bin_id": "yellow", "hint": "Latas limpias van al amarillo, con los envases."},
 ]
 
-BY_PIECE = {item["id"]: item for item in PIECES}
-BY_BIN = {item["id"]: item for item in BINS}
+
+class LabCatalog:
+    """Bins and pieces the lab grades. Same ids as the frontend catalog."""
+
+    mistake_cost = MISTAKE_COST
+
+    def __init__(self, bins: list[dict] | None = None, pieces: list[dict] | None = None) -> None:
+        self._bins = {item["id"]: item for item in (bins or BINS)}
+        self._pieces = {item["id"]: item for item in (pieces or PIECES)}
+
+    def piece(self, piece_id: str) -> dict | None:
+        return self._pieces.get(piece_id)
+
+    def bin(self, bin_id: str) -> dict | None:
+        return self._bins.get(bin_id)
+
+
+lab_catalog = LabCatalog()

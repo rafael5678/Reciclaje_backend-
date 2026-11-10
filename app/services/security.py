@@ -5,16 +5,16 @@ import os
 import secrets
 import time
 
-SECRET = os.environ.get("ECOSCAN_SECRET", "ecoscan-edge-dev-key").encode()
 TOKEN_TTL = 60 * 60 * 24 * 14
 PASSWORD_ALGORITHM = "PBKDF2-HMAC-SHA256"
 PASSWORD_ROUNDS = 120_000
 PASSWORD_SALT_BYTES = 16
+DEV_SECRET = "ecoscan-edge-dev-key"
 
 
 class Security:
-    def __init__(self, secret: bytes = SECRET) -> None:
-        self.secret = secret
+    def __init__(self, secret: bytes | None = None) -> None:
+        self.secret = secret if secret is not None else os.environ.get("ECOSCAN_SECRET", DEV_SECRET).encode()
 
     def hash_password(self, password: str, salt: bytes | None = None) -> str:
         """Hash a password with salted PBKDF2. Never store or return the plain password."""
@@ -54,6 +54,7 @@ class Security:
 
 
 security = Security()
+SECRET = security.secret
 hash_password = security.hash_password
 verify_password = security.verify_password
 make_token = security.make_token

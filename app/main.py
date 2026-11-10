@@ -1,4 +1,8 @@
 """FastAPI app: CORS, health, and routers."""
+from app.env_load import load_env
+
+load_env()
+
 import os
 from contextlib import asynccontextmanager
 
@@ -7,12 +11,9 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import init_db
-from app.env_load import load_env
 from app.services.photo_service import photo_service
 from app.services.vision_ai import status as gemini_status
 from app.views import auth_view, classroom_view, impact_view, lab_view, material_view, scan_view
-
-load_env()
 
 
 database_ready = False

@@ -3,7 +3,7 @@ from datetime import datetime
 
 from fastapi import HTTPException
 
-from app.models.lab_catalog import BY_BIN, BY_PIECE, MISTAKE_COST
+from app.models.lab_catalog import lab_catalog
 from app.models.schemas import LabThrowOut
 from app.repositories.lab_repository import lab_repository
 from app.repositories.scan_repository import ScanRepository
@@ -13,13 +13,15 @@ scan_repository = ScanRepository()
 
 class LabService:
     def throw(self, user_id: int, piece_id: str, bin_id: str) -> LabThrowOut:
-        piece = BY_PIECE.get(piece_id)
-        chosen = BY_BIN.get(bin_id)
+        piece = lab_catalog.piece(piece_id)
+        chosen = lab_catalog.bin(bin_id)
         if piece is None or chosen is None:
             raise HTTPException(status_code=400, detail="Esa pieza o caneca no está en el laboratorio")
-        expected = BY_BIN[piece["bin_id"]]
+        expected = lab_catalog.bin(piece["bin_id"])
+        if expected is None:
+            raise HTTPException(status_code=400, detail="Esa pieza o caneca no está en el laboratorio")
         correct = piece["bin_id"] == bin_id
-        delta = 0 if correct else -MISTAKE_COST
+        delta = 0 if correct else -lab_catalog.mistake_cost
         lab_repository.insert(
             user_id=user_id,
             piece_id=piece_id,

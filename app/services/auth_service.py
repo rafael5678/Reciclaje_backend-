@@ -14,21 +14,21 @@ scan_repository = ScanRepository()
 GUEST_DOMAIN = "@invitado.ecoscan"
 
 
-def is_guest(user: dict) -> bool:
-    return str(user.get("email", "")).endswith(GUEST_DOMAIN)
-
-
-def public_user(user: dict) -> dict:
-    return {"id": user["id"], "name": user["name"], "email": user["email"], "guest": is_guest(user)}
-
-
 class AuthService:
+    guest_domain = GUEST_DOMAIN
+
+    def is_guest(self, user: dict) -> bool:
+        return str(user.get("email", "")).endswith(self.guest_domain)
+
+    def public_user(self, user: dict) -> dict:
+        return {"id": user["id"], "name": user["name"], "email": user["email"], "guest": self.is_guest(user)}
+
     def register(self, name: str, email: str, password: str, guest_token: str | None = None) -> dict:
         """Create an account and optional guest merge."""
         name = credentials.name(name)
         email = credentials.email(email)
         password = credentials.password(password)
-        if email.endswith(GUEST_DOMAIN):
+        if email.endswith(self.guest_domain):
             raise HTTPException(status_code=400, detail="Usa tu propio correo")
         if user_repository.get_by_email(email):
             raise HTTPException(status_code=409, detail="Ese correo ya tiene una cuenta")
@@ -41,14 +41,14 @@ class AuthService:
         email = credentials.email(email)
         password = credentials.password(password)
         user = user_repository.get_by_email(email)
-        if user is None or is_guest(user) or not verify_password(password, user["password_hash"]):
+        if user is None or self.is_guest(user) or not verify_password(password, user["password_hash"]):
             raise HTTPException(status_code=401, detail="Correo o contraseña incorrectos")
         return self._session(user, self._claim_guest(guest_token, user["id"]))
 
     def guest(self) -> dict:
         """Create a guest account."""
         created = datetime.now().astimezone().isoformat(timespec="seconds")
-        email = f"invitado-{secrets.token_hex(6)}{GUEST_DOMAIN}"
+        email = f"invitado-{secrets.token_hex(6)}{self.guest_domain}"
         user = user_repository.create("Invitado", email, hash_password(secrets.token_urlsafe(24)), created)
         return self._session(user)
 
@@ -64,7 +64,7 @@ class AuthService:
         if not guest_token:
             return 0
         guest = self.user_from_token(guest_token)
-        if guest is None or not is_guest(guest) or guest["id"] == owner_id:
+        if guest is None or not self.is_guest(guest) or guest["id"] == owner_id:
             return 0
         moved = scan_repository.move(guest["id"], owner_id)
         user_repository.delete(guest["id"])
@@ -72,7 +72,9 @@ class AuthService:
 
     def _session(self, user: dict, moved: int = 0) -> dict:
         """Build the token payload for the client."""
-        return {"token": make_token(user["id"]), "user": public_user(user), "moved_scans": moved}
+        return {"token": make_token(user["id"]), "user": self.public_user(user), "moved_scans": moved}
 
 
 auth_service = AuthService()
+is_guest = auth_service.is_guest
+public_user = auth_service.public_user
