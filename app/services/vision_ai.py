@@ -167,21 +167,34 @@ def status() -> dict:
 
 
 def classify(image: Image.Image) -> dict | None:
-    payload, digest = _image_part(image)
-    cached = _cached(digest)
-    if cached:
-        return cached
-    hit = _classify_gemini(payload, digest)
-    if hit:
-        return hit
-    if has_anthropic():
-        print("[EcoScan Vision] Gemini no clasifico; pidiendo a Claude Haiku 5.5")
+    """Gemini, then one Haiku call, then None so PhotoService can use local models."""
+    try:
+        payload, digest = _image_part(image)
+        cached = _cached(digest)
+        if cached:
+            return cached
+        hit = _classify_gemini(payload, digest)
+        if hit:
+            return hit
+        return _classify_haiku_once(payload, digest)
+    except Exception as error:
+        print(f"[EcoScan Vision] {type(error).__name__}: {error}")
+        return None
+
+
+def _classify_haiku_once(payload: dict, digest: str) -> dict | None:
+    if not has_anthropic():
+        return None
+    print("[EcoScan Vision] Gemini no clasifico; un intento a Claude Haiku 5.5")
+    try:
         jpeg_b64 = payload["inline_data"]["data"]
         hit = classify_haiku(PROMPT, jpeg_b64, _parse_text)
         if hit:
             _store(digest, hit)
-            return hit
-    return None
+        return hit
+    except Exception as error:
+        print(f"[EcoScan Anthropic] {type(error).__name__}: {error}")
+        return None
 
 
 def _classify_gemini(payload: dict, digest: str) -> dict | None:

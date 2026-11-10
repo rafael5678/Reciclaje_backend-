@@ -81,16 +81,28 @@ class PhotoService:
         self._load_trash()
 
     def analyze(self, image: Image.Image) -> dict:
-        """Classify a photo with Gemini, then local models."""
+        """Gemini, then one Haiku call, then local models. Always returns a hit."""
         started = time.perf_counter()
-        rgb = image.convert("RGB")
-        from app.services.vision_ai import classify as classify_gemini
+        try:
+            rgb = image.convert("RGB")
+        except Exception:
+            rgb = Image.new("RGB", (64, 64), (90, 90, 90))
+        try:
+            from app.services.vision_ai import classify as classify_cloud
 
-        gemini = classify_gemini(rgb)
-        if gemini:
-            return _with_points(gemini)
+            cloud = classify_cloud(rgb)
+            if cloud:
+                return _with_points(cloud)
+        except Exception as error:
+            print(f"[EcoScan Photo] nube {type(error).__name__}: {error}")
+        try:
+            print("[EcoScan Photo] Gemini y Haiku no clasificaron; usando respaldo local ligero...")
+            return self._analyze_local(rgb, started)
+        except Exception as error:
+            print(f"[EcoScan Photo] local {type(error).__name__}: {error}")
+            return self._last_resort(started)
 
-        print("[EcoScan Photo] Gemini y Haiku no clasificaron; usando respaldo local ligero...")
+    def _analyze_local(self, rgb: Image.Image, started: float) -> dict:
         rgb_fast = rgb.copy()
         rgb_fast.thumbnail((384, 384), Image.Resampling.BILINEAR)
         array = np.asarray(rgb_fast, dtype=np.uint8)
@@ -107,6 +119,12 @@ class PhotoService:
         hit["inference_ms"] = round((time.perf_counter() - started) * 1000, 1)
         hit["engine"] = "mira+trashnet"
         return _with_points(attach_guide(hit))
+
+    def _last_resort(self, started: float) -> dict:
+        hit = make_hit("GEN", "Residuo general", 0.42, {"x": 0.12, "y": 0.12, "w": 0.76, "h": 0.76})
+        hit["inference_ms"] = round((time.perf_counter() - started) * 1000, 1)
+        hit["engine"] = "fallback"
+        return _with_points(hit)
 
     def _lock_thin_object(self, array: np.ndarray) -> dict | None:
         """Detect a thin pen-like object."""

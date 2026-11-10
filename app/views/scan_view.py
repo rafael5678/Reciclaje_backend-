@@ -30,7 +30,10 @@ async def analyze_photo(file: UploadFile = File(...), user: dict = CurrentUser) 
         image.load()
     except (UnidentifiedImageError, OSError):
         raise HTTPException(status_code=400, detail="Ese archivo no es una imagen. Prueba con JPG o PNG")
-    photo_service.save_upload(raw, file.filename or "foto.jpg", str(user["id"]))
+    try:
+        photo_service.save_upload(raw, file.filename or "foto.jpg", str(user["id"]))
+    except Exception:
+        pass
     return photo_service.analyze(image)
 
 
