@@ -1,7 +1,8 @@
-"""Gemini ve la foto y la clasifica con el catálogo de EcoScan.
+"""Gemini clasifica la foto. Si se agota, Claude Haiku 5.5; luego MIRA/TrashNet.
 
-Cada escaneo hace una sola petición. Si el modelo principal se agota (429),
-se usa el de respaldo, y nunca se pasa de GEMINI_RPM peticiones por minuto.
+Cada escaneo hace una sola petición a Gemini. Si el modelo principal se agota
+(429), se usa el de respaldo Gemini, y nunca se pasa de GEMINI_RPM por minuto.
+Haiku no se consulta en el health check: solo si Gemini no devolvió un hit.
 """
 
 from __future__ import annotations
@@ -21,6 +22,8 @@ from urllib.request import Request, urlopen
 from PIL import Image
 
 from app.models.catalog import BY_CODE
+from app.services.anthropic_ai import classify as classify_haiku
+from app.services.anthropic_ai import has_anthropic, status as anthropic_status
 from app.services.guide import attach_guide
 
 DEFAULT_MODELS = "gemini-3.1-flash-lite,gemini-3-flash-preview"
@@ -159,17 +162,32 @@ def status() -> dict:
         "per_minute": _per_minute(),
         "used_last_minute": budget.used(),
         "last": budget.last() or None,
+        "anthropic": anthropic_status(),
     }
 
 
 def classify(image: Image.Image) -> dict | None:
-    key = os.environ.get("GEMINI_API_KEY", "").strip()
-    if not key:
-        return None
     payload, digest = _image_part(image)
     cached = _cached(digest)
     if cached:
         return cached
+    hit = _classify_gemini(payload, digest)
+    if hit:
+        return hit
+    if has_anthropic():
+        print("[EcoScan Vision] Gemini no clasifico; pidiendo a Claude Haiku 5.5")
+        jpeg_b64 = payload["inline_data"]["data"]
+        hit = classify_haiku(PROMPT, jpeg_b64, _parse_text)
+        if hit:
+            _store(digest, hit)
+            return hit
+    return None
+
+
+def _classify_gemini(payload: dict, digest: str) -> dict | None:
+    key = os.environ.get("GEMINI_API_KEY", "").strip()
+    if not key:
+        return None
     started = time.perf_counter()
     for model in _models():
         if not budget.available(model):
@@ -267,6 +285,10 @@ def _ask(key: str, model: str, image_part: dict) -> dict:
 
 def _parse(raw: dict) -> dict | None:
     text = raw["candidates"][0]["content"]["parts"][0]["text"]
+    return _parse_text(text)
+
+
+def _parse_text(text: str) -> dict | None:
     cleaned = text.strip()
     if cleaned.startswith("```"):
         cleaned = cleaned.split("\n", 1)[-1].rsplit("```", 1)[0]

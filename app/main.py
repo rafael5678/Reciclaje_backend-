@@ -76,10 +76,12 @@ def health() -> dict:
         c.close()
     except Exception:
         db_ok = database_ready
+    anthropic = gemini.get("anthropic") or {}
     return {
         "status": "ok",
         "service": "ecoscan",
         "gemini": gemini["enabled"],
+        "anthropic": bool(anthropic.get("enabled")),
         "database": db_ok,
         "database_type": db_type,
         "vision": gemini,

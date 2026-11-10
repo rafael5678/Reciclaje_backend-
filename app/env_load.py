@@ -1,4 +1,4 @@
-"""Load GEMINI_API_KEY from .env without extra dependencies."""
+"""Load GEMINI_API_KEY and ANTHROPIC_API_KEY from .env without extra dependencies."""
 
 from __future__ import annotations
 

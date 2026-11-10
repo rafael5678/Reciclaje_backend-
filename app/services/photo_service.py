@@ -90,7 +90,7 @@ class PhotoService:
         if gemini:
             return _with_points(gemini)
 
-        print("[EcoScan Photo] Gemini no disponible, usando respaldo local ligero...")
+        print("[EcoScan Photo] Gemini y Haiku no clasificaron; usando respaldo local ligero...")
         rgb_fast = rgb.copy()
         rgb_fast.thumbnail((384, 384), Image.Resampling.BILINEAR)
         array = np.asarray(rgb_fast, dtype=np.uint8)
