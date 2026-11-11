@@ -185,7 +185,7 @@ def classify(image: Image.Image) -> dict | None:
 def _classify_haiku_once(payload: dict, digest: str) -> dict | None:
     if not has_anthropic():
         return None
-    print("[EcoScan Vision] Gemini no clasifico; un intento a Claude Haiku 5.5")
+        print("[EcoScan Vision] Gemini missed; one Haiku 5.5 attempt")
     try:
         jpeg_b64 = payload["inline_data"]["data"]
         hit = classify_haiku(PROMPT, jpeg_b64, _parse_text)
@@ -204,10 +204,10 @@ def _classify_gemini(payload: dict, digest: str) -> dict | None:
     started = time.perf_counter()
     for model in _models():
         if not budget.available(model):
-            print(f"[EcoScan Gemini] Modelo {model} en enfriamiento")
+            print(f"[EcoScan Gemini] Model {model} is cooling")
             continue
         if not budget.take():
-            print(f"[EcoScan Gemini] Limite RPM en {model}")
+            print(f"[EcoScan Gemini] RPM limit on {model}")
             continue
         try:
             raw_resp = _ask(key, model, payload)
@@ -220,7 +220,7 @@ def _classify_gemini(payload: dict, digest: str) -> dict | None:
                 _store(digest, hit)
                 return hit
             budget.remember(model, False, "sin codigo valido")
-            print(f"[EcoScan Gemini] {model}: respuesta sin codigo valido")
+            print(f"[EcoScan Gemini] {model}: response without a valid code")
         except HTTPError as error:
             body = error.read().decode("utf-8", errors="ignore")[:600]
             budget.remember(model, False, f"{error.code}")

@@ -94,9 +94,9 @@ class PhotoService:
             if cloud:
                 return _with_points(cloud)
         except Exception as error:
-            print(f"[EcoScan Photo] nube {type(error).__name__}: {error}")
+            print(f"[EcoScan Photo] cloud {type(error).__name__}: {error}")
         try:
-            print("[EcoScan Photo] Gemini y Haiku no clasificaron; usando respaldo local ligero...")
+            print("[EcoScan Photo] Gemini and Haiku missed; using local models.")
             return self._analyze_local(rgb, started)
         except Exception as error:
             print(f"[EcoScan Photo] local {type(error).__name__}: {error}")

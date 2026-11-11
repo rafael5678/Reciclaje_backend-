@@ -77,7 +77,7 @@ def _present(row: dict, user_id: int, members: int | None = None) -> ClassroomOu
 
 class ClassroomService:
     def list_for(self, user: dict) -> list[ClassroomOut]:
-        """List scans or classrooms for a user."""
+        """List classrooms for this user."""
         return [_present(row, user["id"]) for row in classroom_repository.for_user(user["id"])]
 
     def create(self, user: dict, name: str) -> ClassroomOut:

@@ -175,7 +175,7 @@ def get_conn() -> Database:
             raw = psycopg.connect(with_ssl(url), row_factory=dict_row, connect_timeout=5)
             return Database(raw, postgres=True)
         except Exception as exc:
-            print(f"[EcoScan DB] Falló conexión a Postgres ({exc}). Usando SQLite de respaldo.")
+            print(f"[EcoScan DB] Postgres failed ({exc}). Using SQLite fallback.")
     os.makedirs(DATA_DIR, exist_ok=True)
     raw = sqlite3.connect(DB_PATH)
     raw.row_factory = sqlite3.Row
@@ -186,7 +186,7 @@ def init_db() -> bool:
     try:
         conn = get_conn()
     except Exception as exc:
-        print(f"Base de datos no disponible: {exc}")
+        print(f"[EcoScan DB] Database unavailable: {exc}")
         return False
     try:
         if conn.postgres:

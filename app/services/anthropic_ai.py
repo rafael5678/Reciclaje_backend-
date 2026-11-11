@@ -80,7 +80,7 @@ def classify(prompt: str, jpeg_b64: str, parse) -> dict | None:
         hit = parse(_text(raw))
         if not hit:
             state.remember(False, "sin codigo valido")
-            print("[EcoScan Anthropic] respuesta sin codigo valido")
+            print("[EcoScan Anthropic] response without a valid code")
             return None
         state.remember(True)
         hit["inference_ms"] = round((time.perf_counter() - started) * 1000, 1)
